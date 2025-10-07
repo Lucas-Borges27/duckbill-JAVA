@@ -12,8 +12,11 @@ Pedro Henrique Rodrigues RM 560393 - Criação da documentação, diagramas e RE
 1. Clone o repositório.
 2. Configure o banco Oracle em `src/main/resources/application.yml` (url, username, password).
 3. Execute: `mvn spring-boot:run`
-4. Após iniciar a aplicação, acesse a interface do Swagger UI para explorar e testar os endpoints da API:
+Após iniciar a aplicação, acesse a interface do Swagger UI para explorar e testar os endpoints da API:
    - URL : [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
+## Testes com Postman
+Para testar os endpoints da API, importe a coleção do Postman localizada em `docs/postman/duckBill-postman.json`. A coleção inclui exemplos de requisições para todos os endpoints principais.
    
 
 ## Diagramas
@@ -114,5 +117,5 @@ Resposta: Cotação do dia.
 
 ## Gestão e Configuração
 - Repositório público no GitHub.
-- Configuração via application.yml (Oracle, AwesomeAPI).
-- Postman collection em docs/postman/financas-jovens-postman.json.
+- Configuração via application.properties (Oracle, AwesomeAPI).
+- Postman collection em docs/postman/duckBill-postman.json.
