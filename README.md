@@ -3,9 +3,9 @@
 Aplicação Spring Boot para controle de despesas pessoais, desenvolvida em Java 21, utilizando JPA/Hibernate para persistência em Oracle Database. Destinada a jovens estudantes para rastrear gastos diários, converter moedas e obter relatórios básicos.
 
 ## Integrantes
-Bruno Carlos Soares RM 559250 - Responsável pelos testes funcionais e validação dos endpoints.
-Lucas Borges de Souza RM 560027 - Desenvolvimento completo da aplicação Spring Boot, controllers e serviços.
-Pedro Henrique Rodrigues RM 560393 - Criação da documentação, diagramas e README do projeto.
+- Bruno Carlos Soares RM 559250 - Responsável pelos testes funcionais e validação dos endpoints.
+- Lucas Borges de Souza RM 560027 - Desenvolvimento completo da aplicação Spring Boot, controllers e serviços.
+- Pedro Henrique Rodrigues RM 560393 - Criação da documentação, diagramas e README do projeto.
 
 
 ## Como Rodar
