@@ -27,7 +27,7 @@ Para testar os endpoints da API, importe a coleção do Postman localizada em `d
 ![Diagrama de Classes](docs/images/D_Classes.png)
 
 ## Vídeo de Demonstração
-[Link para vídeo mostrando proposta: app para estudantes controlar gastos, converter moedas, relatórios; público-alvo: jovens; problema: falta de controle financeiro]
+- URL : [https://youtu.be/3hpxwZli2kY?si=s6yuTLSgUr45mRD_](https://youtu.be/3hpxwZli2kY?si=s6yuTLSgUr45mRD_)
 
 ## Endpoints Principais
 - Usuários: POST/GET /api/v1/usuarios
