@@ -110,10 +110,30 @@ curl -X GET "http://localhost:8080/api/v1/cotacoes-moeda?moeda=USD&dataRef=2023-
 ```
 Resposta: Cotação do dia.
 
+## Evolução do Projeto
+
+### Sprint 1 (Maturity Level 1 - Recursos)
+- Implementação das entidades básicas (Usuario, Categoria, Despesa, Ativo, TransacaoAtivo, CotacaoAtivo, CotacaoMoeda).
+- CRUD básico para todas as entidades.
+- Persistência com JPA/Hibernate e Oracle Database.
+- Validações básicas com Bean Validation.
+- Documentação com Swagger/OpenAPI.
+- Testes funcionais com Postman.
+
+### Sprint 2 (Maturity Level 3 - Hypermedia Controls)
+- Adição de HATEOAS (Hypermedia as the Engine of Application State) para navegação RESTful.
+- Implementação de links self, collection e relacionados em todas as respostas da API.
+- Dependência spring-boot-starter-hateoas adicionada.
+- Controllers atualizados para retornar EntityModel e CollectionModel com links dinâmicos.
+- Exemplo: Um usuário agora inclui links para suas despesas, e uma despesa inclui links para usuário e categoria.
+- Melhorias na arquitetura: separação em camadas (Controller, Service, Repository, Mapper, DTO).
+- Validações aprimoradas e tratamento de erros global.
+- Coleção Postman atualizada para refletir as mudanças.
+
 ## Cronograma
 - Semana 1: Entidades/CRUD básicos (Sprint 1 - Maturity Level 1)
 - Semana 2: Relatórios/Conversão de Moedas/Investimentos
-- Semana 3: Testes/Documentação/Finalização
+- Semana 3: HATEOAS/Testes/Documentação/Finalização (Sprint 2 - Maturity Level 3)
 
 ## Gestão e Configuração
 - Repositório público no GitHub.
