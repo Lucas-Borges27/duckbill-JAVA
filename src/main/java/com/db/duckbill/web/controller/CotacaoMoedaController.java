@@ -25,12 +25,8 @@ public class CotacaoMoedaController {
 
     @GetMapping
     public CollectionModel<EntityModel<CotacaoMoedaDTO>> listar() {
-        List<EntityModel<CotacaoMoedaDTO>> cotacoes = service.listar().stream()
-            .map(c -> EntityModel.of(CotacaoMoedaMapper.toDTO(c),
-                linkTo(methodOn(CotacaoMoedaController.class).buscar(c.getId().getMoeda(), c.getId().getDataRef().toString())).withSelfRel()
-            ))
-            .collect(Collectors.toList());
-        return CollectionModel.of(cotacoes,
+        // Since we don't store currency quotes in database, return empty collection with self link
+        return CollectionModel.of(List.of(),
             linkTo(methodOn(CotacaoMoedaController.class).listar()).withSelfRel()
         );
     }
@@ -38,14 +34,8 @@ public class CotacaoMoedaController {
     @GetMapping("/{moeda}/{dataRef}")
     public ResponseEntity<EntityModel<CotacaoMoedaDTO>> buscar(@PathVariable String moeda, @PathVariable String dataRef) {
         LocalDate data = LocalDate.parse(dataRef);
-        Optional<com.db.duckbill.domain.entity.CotacaoMoeda> cotacao = service.buscarPorMoedaEData(moeda.toUpperCase(), data);
-        CotacaoMoedaDTO dto;
-        if (cotacao.isPresent()) {
-            dto = CotacaoMoedaMapper.toDTO(cotacao.get());
-        } else {
-            BigDecimal valor = service.obterCotacaoExterna(moeda.toUpperCase(), data);
-            dto = new CotacaoMoedaDTO(moeda.toUpperCase(), data, valor);
-        }
+        BigDecimal valor = service.obterCotacaoExterna(moeda.toUpperCase(), data);
+        CotacaoMoedaDTO dto = new CotacaoMoedaDTO(moeda.toUpperCase(), data, valor);
         EntityModel<CotacaoMoedaDTO> model = EntityModel.of(dto,
             linkTo(methodOn(CotacaoMoedaController.class).buscar(moeda, dataRef)).withSelfRel(),
             linkTo(methodOn(CotacaoMoedaController.class).listar()).withRel("cotacoes-moeda")

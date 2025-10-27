@@ -2,8 +2,6 @@ package com.db.duckbill.web.controller;
 
 import com.db.duckbill.domain.entity.Usuario;
 import com.db.duckbill.domain.repo.UsuarioRepository;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -21,12 +19,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 @RequestMapping("/api/v1/usuarios")
 @RequiredArgsConstructor
-@Tag(name = "Usuários", description = "Gerenciamento de usuários")
 public class UsuarioController {
     private final UsuarioRepository repo;
 
     @PostMapping
-    @Operation(summary = "Criar usuário", description = "Cria um novo usuário")
     public ResponseEntity<EntityModel<Usuario>> criar(@RequestBody Usuario u) {
         Usuario saved = repo.save(u);
         EntityModel<Usuario> model = EntityModel.of(saved,
@@ -38,7 +34,6 @@ public class UsuarioController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar usuários", description = "Retorna lista de todos os usuários")
     public CollectionModel<EntityModel<Usuario>> listar() {
         List<EntityModel<Usuario>> usuarios = repo.findAll().stream()
             .map(u -> EntityModel.of(u,
@@ -52,7 +47,6 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Obter usuário", description = "Retorna usuário por ID")
     public ResponseEntity<EntityModel<Usuario>> obter(@PathVariable Long id) {
         return repo.findById(id)
             .map(u -> EntityModel.of(u,

@@ -22,13 +22,11 @@ public class CotacaoMoedaService {
 
     @Transactional(readOnly = true)
     public List<CotacaoMoeda> listar() {
-        return repo.findAll();
+        // Since we don't store currency quotes in database, return empty list
+        return List.of();
     }
 
-    @Transactional(readOnly = true)
-    public Optional<CotacaoMoeda> buscarPorMoedaEData(String moeda, LocalDate dataRef) {
-        return repo.findById(new CotacaoMoedaId(moeda, dataRef));
-    }
+
 
     @Transactional
     public CotacaoMoeda salvar(CotacaoMoeda cotacao) {
