@@ -463,21 +463,11 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/api/v1/cotacoes-moeda?moeda=USD&dataRef=2023-10-01",
+          "raw": "http://localhost:8080/api/v1/cotacoes-moeda/USD/2024-11-03",
           "protocol": "http",
           "host": ["localhost"],
           "port": "8080",
-          "path": ["api", "v1", "cotacoes-moeda"],
-          "query": [
-            {
-              "key": "moeda",
-              "value": "USD"
-            },
-            {
-              "key": "dataRef",
-              "value": "2023-10-01"
-            }
-          ]
+          "path": ["api", "v1", "cotacoes-moeda", "USD", "2024-11-03"]
         }
       },
       "event": [
@@ -501,21 +491,11 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/api/v1/cotacoes-ativo?ativoId=1&dataRef=2023-10-01",
+          "raw": "http://localhost:8080/api/v1/cotacoes-ativo/1/2024-11-03",
           "protocol": "http",
           "host": ["localhost"],
           "port": "8080",
-          "path": ["api", "v1", "cotacoes-ativo"],
-          "query": [
-            {
-              "key": "ativoId",
-              "value": "1"
-            },
-            {
-              "key": "dataRef",
-              "value": "2023-10-01"
-            }
-          ]
+          "path": ["api", "v1", "cotacoes-ativo", "1", "2024-11-03"]
         }
       },
       "event": [

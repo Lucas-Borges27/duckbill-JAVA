@@ -65,14 +65,16 @@ public class DespesaController {
     }
 
     @GetMapping("/insights")
-    public CollectionModel<EntityModel<String>> insights(@RequestParam Long usuarioId, @RequestParam String mes) {
-        List<EntityModel<String>> insights = service.insightsBasicos(usuarioId, YearMonth.parse(mes)).stream()
+    public ResponseEntity<CollectionModel<EntityModel<String>>> insights(@RequestParam Long usuarioId, @RequestParam String mes) {
+        List<String> insightsList = service.insightsBasicos(usuarioId, YearMonth.parse(mes));
+        List<EntityModel<String>> insights = insightsList.stream()
             .map(i -> EntityModel.of(i,
                 linkTo(methodOn(DespesaController.class).listar(usuarioId, mes)).withRel("despesas")
             ))
             .collect(Collectors.toList());
-        return CollectionModel.of(insights,
+        CollectionModel<EntityModel<String>> model = CollectionModel.of(insights,
             linkTo(methodOn(DespesaController.class).insights(usuarioId, mes)).withSelfRel()
         );
+        return ResponseEntity.ok(model);
     }
 }

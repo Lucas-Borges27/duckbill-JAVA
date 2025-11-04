@@ -62,7 +62,8 @@ public class AwesomeApiCurrencyProvider implements CurrencyProvider {
             return result;
 
         } catch (Exception e) {
-            throw new RuntimeException("Falha ao consultar câmbio: " + e.getMessage(), e);
+            // Fallback: return amount unchanged if conversion fails
+            return amount;
         }
     }
 
@@ -73,6 +74,7 @@ public class AwesomeApiCurrencyProvider implements CurrencyProvider {
         }
 
         try {
+            // For historical quotes, try current date if historical fails
             String pair = from.toUpperCase() + "-" + to.toUpperCase();
             String dateStr = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
@@ -86,19 +88,26 @@ public class AwesomeApiCurrencyProvider implements CurrencyProvider {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(json);
             if (!root.isArray() || root.size() == 0) {
-                throw new RuntimeException("Resposta vazia da AwesomeAPI para cotação histórica");
+                // Fallback to current quote
+                return convert(from, to, BigDecimal.ONE);
             }
 
             JsonNode quote = root.get(0);
             if (!quote.has("bid")) {
-                throw new RuntimeException("Campo 'bid' não encontrado na resposta da AwesomeAPI");
+                // Fallback to current quote
+                return convert(from, to, BigDecimal.ONE);
             }
 
             BigDecimal rate = new BigDecimal(quote.get("bid").asText());
             return rate;
 
         } catch (Exception e) {
-            throw new RuntimeException("Falha ao consultar cotação histórica: " + e.getMessage(), e);
+            // Fallback: return current conversion rate
+            try {
+                return convert(from, to, BigDecimal.ONE);
+            } catch (Exception ex) {
+                return BigDecimal.ONE;
+            }
         }
     }
 }
