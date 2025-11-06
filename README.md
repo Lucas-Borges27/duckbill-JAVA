@@ -1,43 +1,42 @@
 # Duck Bill
 
-Aplicação Spring Boot para controle de despesas pessoais, desenvolvida em Java 21, utilizando JPA/Hibernate para persistência em Oracle Database. Destinada a jovens estudantes para rastrear gastos diários, converter moedas e obter relatórios básicos.
+## 3.1) Nome da aplicação
+Duck Bill - Aplicação Spring Boot para controle de despesas pessoais, desenvolvida em Java 21, utilizando JPA/Hibernate para persistência em Oracle Database. Destinada a jovens estudantes para rastrear gastos diários, converter moedas e obter relatórios básicos.
 
-## Integrantes
+## 3.2) Nome completo e breve apresentação dos integrantes do Grupo (atividade da qual ficou responsável no projeto)
 - Bruno Carlos Soares RM 559250 - Responsável pelos testes funcionais e validação dos endpoints.
 - Lucas Borges de Souza RM 560027 - Desenvolvimento completo da aplicação Spring Boot, controllers e serviços.
 - Pedro Henrique Rodrigues RM 560393 - Criação da documentação, diagramas e README do projeto.
 
-
-## Como Rodar
+## 3.3) Instrução de como rodar a aplicação
 1. Clone o repositório.
-2. Configure o banco Oracle em `src/main/resources/application.yml` (url, username, password).
+2. Configure o banco Oracle em `src/main/resources/application.properties` (url, username, password).
 3. Execute: `mvn spring-boot:run`
 Após iniciar a aplicação, acesse a interface do Swagger UI para explorar e testar os endpoints da API:
    - URL : [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
-## Testes com Postman
-Para testar os endpoints da API, importe a coleção do Postman localizada em `docs/postman/duckBill-postman.json`. A coleção inclui exemplos de requisições para todos os endpoints principais.
-   
-
-## Diagramas
+## 3.4) Imagem dos diagramas
 ### Diagrama ER (Entidade-Relacionamento)
 ![Diagrama ER](docs/images/DER.png)
 
 ### Diagrama de Classes
 ![Diagrama de Classes](docs/images/D_Classes.png)
 
-## Vídeo de Demonstração
+## 3.5) Link para vídeo apresentando a Proposta Tecnológica, o público-alvo da aplicação e os problemas que a aplicação se propõe a solucionar
 - URL : [https://youtu.be/3hpxwZli2kY?si=s6yuTLSgUr45mRD_](https://youtu.be/3hpxwZli2kY?si=s6yuTLSgUr45mRD_)
 
-## Endpoints Principais
-- Usuários: POST/GET /api/v1/usuarios
+## 3.6) Listagem de todos os endpoints (documentação da API)
+- Usuários: POST/GET /api/v1/usuarios, GET /api/v1/usuarios/{id}
 - Categorias: POST/GET /api/v1/categorias
 - Despesas: POST/GET /api/v1/despesas, GET /api/v1/despesas/top3, GET /api/v1/despesas/insights
-- Ativos: POST/GET /api/v1/ativos, PUT/DELETE /api/v1/ativos/{id}
-- Transações Ativo: POST/GET /api/v1/transacoes-ativo, PUT/DELETE /api/v1/transacoes-ativo/{id}
+- Ativos: POST/GET /api/v1/ativos, GET /api/v1/ativos/{id}, PUT /api/v1/ativos/{id}
+- Transações Ativo: POST/GET /api/v1/transacoes-ativo, GET /api/v1/transacoes-ativo/{id}, PUT /api/v1/transacoes-ativo/{id}
 - Cotações de Ativo: POST/GET /api/v1/cotacoes-ativo, GET /api/v1/cotacoes-ativo/{ativoId}/{dataRef}
 - Cotações de Moeda: GET /api/v1/cotacoes-moeda, GET /api/v1/cotacoes-moeda/{moeda}/{dataRef}
 - Câmbio (serviço utilitário): GET /api/v1/cambio
+
+## Testes com Postman
+Para testar os endpoints da API, importe a coleção do Postman localizada em `docs/postman/duckBill-postman.json`. A coleção inclui exemplos de requisições para todos os endpoints principais.
 
 ## Testes Possíveis (via curl ou Postman)
 ### 1. Criar Usuário
