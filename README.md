@@ -1,7 +1,7 @@
-# Duck Bill
+# SkillUp
 
 ## 3.1) Nome da aplicação
-Duck Bill - Aplicação Spring Boot para controle de despesas pessoais, desenvolvida em Java 21, utilizando JPA/Hibernate para persistência em Oracle Database. Destinada a jovens estudantes para rastrear gastos diários, converter moedas e obter relatórios básicos.
+SkillUp Tracker é uma API Spring Boot (Java 21) para cadastro de usuários, cursos e acompanhamento de progresso em trilhas de aprendizagem. A aplicação utiliza JPA/Hibernate com Oracle Database e foi ajustada para refletir integralmente o modelo de dados `SKILLUP_USUARIO`, `SKILLUP_CURSO` e `SKILLUP_PROGRESSO`.
 
 ## 3.2) Nome completo e breve apresentação dos integrantes do Grupo (atividade da qual ficou responsável no projeto)
 - Bruno Carlos Soares RM 559250 - Responsável pelos testes funcionais e validação dos endpoints.
@@ -26,115 +26,119 @@ Após iniciar a aplicação, acesse a interface do Swagger UI para explorar e te
 - URL : [https://youtu.be/3hpxwZli2kY?si=s6yuTLSgUr45mRD_](https://youtu.be/3hpxwZli2kY?si=s6yuTLSgUr45mRD_)
 
 ## 3.6) Listagem de todos os endpoints (documentação da API)
-- Usuários: POST/GET /api/v1/usuarios, GET /api/v1/usuarios/{id}
-- Categorias: POST/GET /api/v1/categorias
-- Despesas: POST/GET /api/v1/despesas, GET /api/v1/despesas/top3, GET /api/v1/despesas/insights
-- Ativos: POST/GET /api/v1/ativos, GET /api/v1/ativos/{id}, PUT /api/v1/ativos/{id}
-- Transações Ativo: POST/GET /api/v1/transacoes-ativo, GET /api/v1/transacoes-ativo/{id}, PUT /api/v1/transacoes-ativo/{id}
-- Cotações de Ativo: POST/GET /api/v1/cotacoes-ativo, GET /api/v1/cotacoes-ativo/{ativoId}/{dataRef}
-- Cotações de Moeda: GET /api/v1/cotacoes-moeda, GET /api/v1/cotacoes-moeda/{moeda}/{dataRef}
-- Câmbio (serviço utilitário): GET /api/v1/cambio
+- Autenticação: `POST /api/v1/auth/login` (gera JWT para ser usado no header `Authorization: Bearer <token>`)
+- Usuários: `POST/GET /api/v1/usuarios`, `GET /api/v1/usuarios/{id}`, `PUT /api/v1/usuarios/{id}`, `DELETE /api/v1/usuarios/{id}`
+- Cursos: `POST/GET /api/v1/cursos`, `GET /api/v1/cursos/{id}`, `PUT /api/v1/cursos/{id}`, `DELETE /api/v1/cursos/{id}`
+- Progresso: `POST/GET /api/v1/progressos`, `GET /api/v1/progressos/{id}`, `PUT /api/v1/progressos/{id}`, `DELETE /api/v1/progressos/{id}`
+  - Filtros disponíveis em `/api/v1/progressos`: `usuarioId`, `cursoId` ou `status`. Paginação e ordenação seguem `?page=0&size=10&sort=campo,asc`.
+
+### Autenticação JWT
+1. Crie um usuário (`POST /api/v1/usuarios`) – aberto.
+2. Autentique-se em `POST /api/v1/auth/login` informando `email` e `senha`.
+3. Envie o token retornado em todos os demais endpoints protegidos através do header `Authorization: Bearer <token>`.
+4. Tokens expiram conforme `jwt.expiration-ms` (padrão 60 min) configurado em `application.properties` ou variável de ambiente `JWT_EXPIRATION_MS`.
+
+### Paginação, ordenação e filtros
+Todos os recursos de leitura (`/usuarios`, `/cursos`, `/progressos`) aceitam os parâmetros Spring padrão:
+`page`, `size`, `sort`. Exemplos:
+- `/api/v1/cursos?categoria=Backend&size=5&sort=nome,asc`
+- `/api/v1/usuarios?areaInteresse=Data&page=1`
+- `/api/v1/progressos?usuarioId=1&sort=dataInicio,desc`
+
+Os links HATEOAS retornados pelo backend já incluem os parâmetros de navegação (`self`, `next`, `prev`).
 
 ## Testes com Postman
-Para testar os endpoints da API, importe a coleção do Postman localizada em `docs/postman/duckBill-postman.json`. A coleção inclui exemplos de requisições para todos os endpoints principais.
+Para testar os endpoints da API, importe a coleção do Postman localizada em `docs/postman/skillup-postman.json`. A coleção inclui exemplos de requisições para criar usuários, cadastrar cursos e registrar progresso utilizando as tabelas SKILLUP\_*.
 
 ## Testes Possíveis (via curl ou Postman)
-### 1. Criar Usuário
+### 0. Autenticar e obter token
+```bash
+curl -X POST http://localhost:8080/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"ana@example.com","senha":"senha123"}'
+```
+Resposta: `{"token":"<jwt>","type":"Bearer","expiresInMs":3600000}`
+
+Use o token nos exemplos abaixo.
+
+### 1. Criar Usuário (público)
 ```bash
 curl -X POST http://localhost:8080/api/v1/usuarios \
   -H "Content-Type: application/json" \
-  -d '{"nome":"João Silva","email":"joao@example.com","senha":"senha123"}'
+  -d '{"nome":"Ana Souza","email":"ana@example.com","senha":"senha123","areaInteresse":"Data"}'
 ```
-Resposta esperada: {"id":1,"nome":"João Silva","email":"joao@example.com"}
 
-### 2. Criar Categoria
+### 2. Criar Curso
 ```bash
-curl -X POST http://localhost:8080/api/v1/categorias \
+curl -X POST http://localhost:8080/api/v1/cursos \
   -H "Content-Type: application/json" \
-  -d '{"nome":"Alimentacao"}'
+  -H "Authorization: Bearer <TOKEN>" \
+  -d '{"nome":"Fundamentos de Java","categoria":"Backend","cargaHoraria":40,"dificuldade":"INTERMEDIARIO","descricao":"Curso rápido de Java."}'
 ```
-Resposta: {"id":1,"nome":"Alimentacao"}
 
-### 3. Criar Despesa
+### 3. Registrar Progresso
 ```bash
-curl -X POST http://localhost:8080/api/v1/despesas \
+curl -X POST http://localhost:8080/api/v1/progressos \
   -H "Content-Type: application/json" \
-  -d '{"usuarioId":1,"categoriaId":1,"valor":50.00,"moeda":"BRL","dataCompra":"2023-10-01","descricao":"Jantar"}'
+  -H "Authorization: Bearer <TOKEN>" \
+  -d '{"usuarioId":1,"cursoId":1,"status":"EM_ANDAMENTO","porcentagem":25.5}'
 ```
-Resposta: {"id":1,"usuarioId":1,"categoriaId":1,"valor":50.0,"moeda":"BRL","dataCompra":"2023-10-01","descricao":"Jantar"}
 
-### 4. Listar Despesas do Mês
+### 4. Atualizar Progresso
 ```bash
-curl -X GET "http://localhost:8080/api/v1/despesas?usuarioId=1&mes=2023-10"
-```
-Resposta: Lista de despesas do mês.
-
-### 5. Top 3 Categorias por Gasto
-```bash
-curl -X GET "http://localhost:8080/api/v1/despesas/top3?usuarioId=1&mes=2023-10"
-```
-Resposta: [{"categoria":"Alimentacao","total":50.0}]
-
-### 6. Insights Básicos
-```bash
-curl -X GET "http://localhost:8080/api/v1/despesas/insights?usuarioId=1&mes=2023-10"
-```
-Resposta: ["Você gasta 100% em Alimentacao. Vale reduzir?"]
-
-### 7. Converter Moeda (via AwesomeAPI)
-```bash
-curl -X GET "http://localhost:8080/api/v1/cambio?from=USD&to=BRL&valor=100"
-```
-Resposta: {"valor":100,"to":"BRL","from":"USD","convertido":536.16}
-
-### 8. Criar Ativo (Investimentos)
-```bash
-curl -X POST http://localhost:8080/api/v1/ativos \
+curl -X PUT http://localhost:8080/api/v1/progressos/1 \
   -H "Content-Type: application/json" \
-  -d '{"ticker":"PETR4.SA","tipo":"STOCK","moedaBase":"BRL"}'
+  -H "Authorization: Bearer <TOKEN>" \
+  -d '{"status":"CONCLUIDO","porcentagem":100,"dataFim":"2024-11-10"}'
 ```
-Resposta: {"id":1,"ticker":"PETR4.SA","tipo":"STOCK","moedaBase":"BRL"}
 
-### 9. Criar Transação Ativo
+### 5. Listar Progresso por Usuário
 ```bash
-curl -X POST http://localhost:8080/api/v1/transacoes-ativo \
-  -H "Content-Type: application/json" \
-  -d '{"usuarioId":1,"ativoId":1,"tipo":"BUY","qtd":10.0,"preco":25.50,"dataNegocio":"2023-10-01"}'
+curl -H "Authorization: Bearer <TOKEN>" \
+  -X GET "http://localhost:8080/api/v1/progressos?usuarioId=1&page=0&size=5&sort=dataInicio,desc"
 ```
-Resposta: Detalhes da transação.
 
-### 10. Buscar Cotação Moeda
-```bash
-curl -X GET "http://localhost:8080/api/v1/cotacoes-moeda?moeda=USD&dataRef=2023-10-01"
-```
-Resposta: Cotação do dia.
+## Deploy em nuvem
+
+### Containerização
+1. Gere o artefato: `./mvnw clean package -DskipTests`
+2. Monte a imagem definida no `Dockerfile`:
+   ```bash
+   docker build -t ghcr.io/<usuario>/skillup-api:latest .
+   ```
+3. Configure variáveis sensíveis via ambiente na nuvem:
+   - `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`
+   - `JWT_SECRET`, `JWT_EXPIRATION_MS`
+   - `SERVER_PORT` (quando o provedor exigir porta diferente)
+
+### Exemplo de deploy (Render/ Railway / Azure Container Apps)
+1. Suba a imagem para um registry (Docker Hub, GHCR, etc).
+2. Crie o serviço na nuvem apontando para a imagem.
+3. Defina as variáveis citadas e o volume/secret do banco.
+4. Exponha a porta 8080 (ou mapeie para a porta padrão do provedor).
+
+O README continua servindo como guia local enquanto o pipeline de CI/CD pode executar `docker build/push` automaticamente. Para ambientes que não suportam Docker, basta empacotar o JAR e usar serviços como Azure App Service ou AWS Elastic Beanstalk apontando para o pacote gerado.
 
 ## Evolução do Projeto
 
 ### Sprint 1 (Maturity Level 1 - Recursos)
-- Implementação das entidades básicas (Usuario, Categoria, Despesa, Ativo, TransacaoAtivo, CotacaoAtivo, CotacaoMoeda).
-- CRUD básico para todas as entidades.
+- Modelagem e CRUD das entidades `Usuario`, `Curso` e `Progresso`, aderentes ao script SKILLUP.
 - Persistência com JPA/Hibernate e Oracle Database.
-- Validações básicas com Bean Validation.
+- Validações com Bean Validation e tratamento básico de erros.
 - Documentação com Swagger/OpenAPI.
-- Testes funcionais com Postman.
 
 ### Sprint 2 (Maturity Level 3 - Hypermedia Controls)
-- Adição de HATEOAS (Hypermedia as the Engine of Application State) para navegação RESTful.
-- Implementação de links self, collection e relacionados em todas as respostas da API.
-- Dependência spring-boot-starter-hateoas adicionada.
-- Controllers atualizados para retornar EntityModel e CollectionModel com links dinâmicos.
-- Exemplo: Um usuário agora inclui links para suas despesas, e uma despesa inclui links para usuário e categoria.
-- Melhorias na arquitetura: separação em camadas (Controller, Service, Repository, Mapper, DTO).
-- Validações aprimoradas e tratamento de erros global.
-- Coleção Postman atualizada para refletir as mudanças.
+- Respostas HATEOAS em todos os recursos (links para coleções, detalhes e relacionamentos).
+- Serviços específicos para encapsular regras (ex.: validação de datas e percentuais de progresso).
+- Filtros por usuário, curso ou status no recurso de progresso.
+- Coleção Postman e README atualizados para refletir o novo domínio SkillUp.
 
 ## Cronograma
-- Semana 1: Entidades/CRUD básicos (Sprint 1 - Maturity Level 1)
-- Semana 2: Relatórios/Conversão de Moedas/Investimentos
-- Semana 3: HATEOAS/Testes/Documentação/Finalização (Sprint 2 - Maturity Level 3)
+- Semana 1: Modelagem das tabelas SKILLUP, criação das entidades e repositórios.
+- Semana 2: Implementação dos controllers/services com validações e filtros.
+- Semana 3: HATEOAS, testes funcionais, documentação final e ajustes.
 
 ## Gestão e Configuração
-- Repositório público no GitHub.
-- Configuração via application.properties (Oracle, AwesomeAPI).
-- Postman collection em docs/postman/duckBill-postman.json.
+- Script de criação das tabelas em `docs/sql/CREATE_TABLE.sql`.
+- Configuração via `application.properties` (Oracle).
+- Postman collection em `docs/postman/skillup-postman.json`.
