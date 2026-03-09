@@ -32,4 +32,9 @@ public class Usuario {
     @Column(nullable = false)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String senha;
+
+    @NotBlank
+    @Size(max = 20)
+    @Column(name = "ROLE", nullable = false)
+    private String role = "ROLE_USER";
 }

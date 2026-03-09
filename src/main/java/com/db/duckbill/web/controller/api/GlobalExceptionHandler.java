@@ -1,4 +1,4 @@
-package com.db.duckbill.web.controller;
+package com.db.duckbill.web.controller.api;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;

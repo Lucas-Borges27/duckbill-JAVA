@@ -1,4 +1,4 @@
-package com.db.duckbill.web.controller;
+package com.db.duckbill.web.controller.api;
 
 import com.db.duckbill.service.CotacaoMoedaService;
 import com.db.duckbill.web.dto.CotacaoMoedaDTO;

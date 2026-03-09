@@ -28,6 +28,30 @@ public class DespesaService {
   public List<Despesa> listarMes(Long usuarioId, YearMonth ym) {
     return despesaRepo.findByUsuario_IdAndDataCompraBetween(usuarioId, ym.atDay(1), ym.atEndOfMonth());
   }
+  public Despesa buscarPorId(Long id) {
+    return despesaRepo.findById(id).orElseThrow(() -> new NoSuchElementException("Despesa não encontrada"));
+  }
+  @Transactional
+  public Despesa atualizar(Long id, Long usuarioId, Despesa dados) {
+    Despesa existente = buscarPorId(id);
+    if (!existente.getUsuario().getId().equals(usuarioId)) {
+      throw new IllegalArgumentException("Acesso negado à despesa.");
+    }
+    existente.setCategoria(dados.getCategoria());
+    existente.setValor(dados.getValor());
+    existente.setMoeda(dados.getMoeda());
+    existente.setDataCompra(dados.getDataCompra());
+    existente.setDescricao(dados.getDescricao());
+    return despesaRepo.save(existente);
+  }
+  @Transactional
+  public void deletar(Long id, Long usuarioId) {
+    Despesa existente = buscarPorId(id);
+    if (!existente.getUsuario().getId().equals(usuarioId)) {
+      throw new IllegalArgumentException("Acesso negado à despesa.");
+    }
+    despesaRepo.delete(existente);
+  }
   public List<Map<String, Object>> top3Mes(Long usuarioId, YearMonth ym) {
     var despesas = listarMes(usuarioId, ym);
     return despesas.stream()
@@ -42,6 +66,11 @@ public class DespesaService {
         return map;
       })
       .collect(Collectors.toList());
+  }
+  public BigDecimal totalMes(Long usuarioId, YearMonth ym) {
+    return listarMes(usuarioId, ym).stream()
+      .map(Despesa::getValor)
+      .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
   public BigDecimal converter(BigDecimal valor, String from, String to) {
     if (from.equalsIgnoreCase(to)) return valor;

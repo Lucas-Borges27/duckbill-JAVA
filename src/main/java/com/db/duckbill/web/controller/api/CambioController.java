@@ -1,4 +1,4 @@
-package com.db.duckbill.web.controller;
+package com.db.duckbill.web.controller.api;
 import com.db.duckbill.service.DespesaService;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.*;

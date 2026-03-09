@@ -1,4 +1,4 @@
-package com.db.duckbill.web.controller;
+package com.db.duckbill.web.controller.api;
 
 import com.db.duckbill.domain.entity.Usuario;
 import com.db.duckbill.domain.repo.UsuarioRepository;

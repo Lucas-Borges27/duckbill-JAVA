@@ -1,7 +1,7 @@
 # Duck Bill
 
 ## 3.1) Nome da aplicação
-Duck Bill - Aplicação Spring Boot para controle de despesas pessoais, desenvolvida em Java 21, utilizando JPA/Hibernate para persistência em Oracle Database. Destinada a jovens estudantes para rastrear gastos diários, converter moedas e obter relatórios básicos.
+Duck Bill - Aplicação Spring Boot para controle de despesas pessoais, desenvolvida em Java 17, utilizando JPA/Hibernate para persistência em Oracle Database. Destinada a jovens estudantes para rastrear gastos diários, converter moedas e obter relatórios básicos.
 
 ## 3.2) Nome completo e breve apresentação dos integrantes do Grupo (atividade da qual ficou responsável no projeto)
 - Bruno Carlos Soares RM 559250 - Responsável pelos testes funcionais e validação dos endpoints.
@@ -10,10 +10,24 @@ Duck Bill - Aplicação Spring Boot para controle de despesas pessoais, desenvol
 
 ## 3.3) Instrução de como rodar a aplicação
 1. Clone o repositório.
-2. Configure o banco Oracle em `src/main/resources/application.properties` (url, username, password).
-3. Execute: `mvn spring-boot:run`
-Após iniciar a aplicação, acesse a interface do Swagger UI para explorar e testar os endpoints da API:
-   - URL : [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+2. Configure o banco Oracle via variáveis de ambiente (`DB_URL`, `DB_USER`, `DB_PASSWORD`, `DB_SCHEMA`) ou use o profile `dev`.
+3. Execute: `mvn spring-boot:run -Dspring-boot.run.profiles=dev`
+4. O Flyway criará as tabelas e fará o seed inicial automaticamente.
+
+Após iniciar a aplicação, acesse:
+- Web: `http://localhost:8080/login`
+- Swagger: `http://localhost:8080/swagger-ui.html`
+
+### 3.3.1) Credenciais seed
+- Admin: `admin@duckbill.com` / `admin123`
+- User: `user@duckbill.com` / `user123`
+
+### 3.3.2) Rotas web principais (Sprint 3)
+- `/login`
+- `/app/dashboard`
+- `/app/despesas/nova`
+- `/app/transacoes/nova`
+- `/admin/categorias`
 
 ## 3.4) Imagem dos diagramas
 ### Diagrama ER (Entidade-Relacionamento)
@@ -128,6 +142,17 @@ Resposta: Cotação do dia.
 - Melhorias na arquitetura: separação em camadas (Controller, Service, Repository, Mapper, DTO).
 - Validações aprimoradas e tratamento de erros global.
 - Coleção Postman atualizada para refletir as mudanças.
+
+### Sprint 3 (Java Advanced - Web + Security + Flyway)
+- Frontend web com Thymeleaf e telas funcionais.
+- Autenticação por formulário (Spring Security) e senha BCrypt.
+- Perfis `ROLE_USER` e `ROLE_ADMIN` com autorização por rotas.
+- Fluxo A: Dashboard mensal com total, top 3 e insights (regra no service).
+- Fluxo B: Admin bloqueia exclusão de categoria com despesas vinculadas.
+- Migrações Flyway V1 (schema) e V2 (seed).
+
+## Roteiro do vídeo
+Consulte `docs/roteiro-video.md`.
 
 ## Cronograma
 - Semana 1: Entidades/CRUD básicos (Sprint 1 - Maturity Level 1)

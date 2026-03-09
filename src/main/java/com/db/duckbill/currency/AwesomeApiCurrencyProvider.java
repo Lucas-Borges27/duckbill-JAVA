@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
@@ -16,13 +16,21 @@ import java.util.Map;
 @Component
 public class AwesomeApiCurrencyProvider implements CurrencyProvider {
 
-    private final WebClient webClient = WebClient.builder().build();
+    private final String baseUrl;
+    private final long timeout;
+    private final RestTemplate restTemplate;
 
-    @Value("${currency.awesomeapi.base-url}")
-    private String baseUrl;
-
-    @Value("${currency.timeout-ms:3000}")
-    private long timeout;
+    public AwesomeApiCurrencyProvider(
+            @Value("${currency.awesomeapi.base-url}") String baseUrl,
+            @Value("${currency.timeout-ms:3000}") long timeout
+    ) {
+        this.baseUrl = baseUrl;
+        this.timeout = timeout;
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout((int) timeout);
+        factory.setReadTimeout((int) timeout);
+        this.restTemplate = new RestTemplate(factory);
+    }
 
     @Override
     public BigDecimal convert(String from, String to, BigDecimal amount) {
@@ -36,12 +44,7 @@ public class AwesomeApiCurrencyProvider implements CurrencyProvider {
         try {
             String pair = from.toUpperCase() + "-" + to.toUpperCase();
 
-            String json = webClient.get()
-                    .uri(baseUrl + "/last/" + pair)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .timeout(Duration.ofMillis(timeout))
-                    .block();
+            String json = restTemplate.getForObject(baseUrl + "/last/" + pair, String.class);
 
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(json);
@@ -78,12 +81,10 @@ public class AwesomeApiCurrencyProvider implements CurrencyProvider {
             String pair = from.toUpperCase() + "-" + to.toUpperCase();
             String dateStr = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-            String json = webClient.get()
-                    .uri(baseUrl + "/daily/" + pair + "/1?start_date=" + dateStr + "&end_date=" + dateStr)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .timeout(Duration.ofMillis(timeout))
-                    .block();
+            String json = restTemplate.getForObject(
+                baseUrl + "/daily/" + pair + "/1?start_date=" + dateStr + "&end_date=" + dateStr,
+                String.class
+            );
 
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(json);
