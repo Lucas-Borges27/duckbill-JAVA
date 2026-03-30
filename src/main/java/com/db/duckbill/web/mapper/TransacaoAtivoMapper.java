@@ -15,15 +15,4 @@ public class TransacaoAtivoMapper {
             transacao.getDataNegocio()
         );
     }
-
-    public static TransacaoAtivo toEntity(TransacaoAtivoDTO dto) {
-        TransacaoAtivo transacao = new TransacaoAtivo();
-        transacao.setId(dto.id());
-        // Note: usuario and ativo need to be set in service
-        transacao.setTipo(dto.tipo());
-        transacao.setQtd(dto.qtd());
-        transacao.setPreco(dto.preco());
-        transacao.setDataNegocio(dto.dataNegocio());
-        return transacao;
-    }
 }

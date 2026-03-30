@@ -1,12 +1,9 @@
 package com.db.duckbill.service;
 
-import com.db.duckbill.currency.CurrencyProvider;
 import com.db.duckbill.domain.entity.Categoria;
 import com.db.duckbill.domain.entity.Despesa;
 import com.db.duckbill.domain.entity.Usuario;
-import com.db.duckbill.domain.repo.CategoriaRepository;
 import com.db.duckbill.domain.repo.DespesaRepository;
-import com.db.duckbill.domain.repo.UsuarioRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,11 +22,8 @@ import static org.mockito.Mockito.when;
 class DespesaServiceTest {
 
     @Mock DespesaRepository despesaRepository;
-    @Mock UsuarioRepository usuarioRepository;
-    @Mock CategoriaRepository categoriaRepository;
-    @Mock CurrencyProvider currencyProvider;
 
-    @InjectMocks DespesaService despesaService;
+    @InjectMocks DashboardService dashboardService;
 
     @Test
     void totalMes_somaValoresDoMes() {
@@ -53,7 +47,7 @@ class DespesaServiceTest {
         when(despesaRepository.findByUsuario_IdAndDataCompraBetween(1L, ym.atDay(1), ym.atEndOfMonth()))
             .thenReturn(List.of(d1, d2));
 
-        BigDecimal total = despesaService.totalMes(1L, ym);
+        BigDecimal total = dashboardService.totalMes(1L, ym);
         assertThat(total).isEqualByComparingTo("30.50");
     }
 }

@@ -1,9 +1,11 @@
 package com.db.duckbill.web.controller.api;
 
 import com.db.duckbill.domain.entity.TransacaoAtivo;
+import com.db.duckbill.service.CurrentUserService;
 import com.db.duckbill.service.TransacaoAtivoService;
 import com.db.duckbill.web.dto.TransacaoAtivoDTO;
 import com.db.duckbill.web.mapper.TransacaoAtivoMapper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -21,9 +23,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequiredArgsConstructor
 public class TransacaoAtivoController {
     private final TransacaoAtivoService service;
+    private final CurrentUserService currentUserService;
 
     @PostMapping
-    public ResponseEntity<EntityModel<TransacaoAtivoDTO>> criar(@RequestBody TransacaoAtivoDTO dto) {
+    public ResponseEntity<EntityModel<TransacaoAtivoDTO>> criar(@Valid @RequestBody TransacaoAtivoDTO dto) {
+        currentUserService.validarAcessoAoUsuario(dto.usuarioId());
         TransacaoAtivo saved = service.criar(dto);
         TransacaoAtivoDTO dtoSaved = TransacaoAtivoMapper.toDTO(saved);
         EntityModel<TransacaoAtivoDTO> model = EntityModel.of(dtoSaved,
@@ -37,7 +41,10 @@ public class TransacaoAtivoController {
 
     @GetMapping
     public CollectionModel<EntityModel<TransacaoAtivoDTO>> listar() {
-        List<EntityModel<TransacaoAtivoDTO>> transacoes = service.listar().stream()
+        boolean admin = currentUserService.isAdmin();
+        Long usuarioId = currentUserService.getUsuarioIdAtual();
+
+        List<EntityModel<TransacaoAtivoDTO>> transacoes = (admin ? service.listar() : service.listarPorUsuario(usuarioId)).stream()
             .map(t -> EntityModel.of(TransacaoAtivoMapper.toDTO(t),
                 linkTo(methodOn(TransacaoAtivoController.class).buscarPorId(t.getId())).withSelfRel(),
                 linkTo(methodOn(AtivoController.class).buscarPorId(t.getAtivo().getId())).withRel("ativo"),
@@ -51,7 +58,7 @@ public class TransacaoAtivoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<TransacaoAtivoDTO>> buscarPorId(@PathVariable Long id) {
-        TransacaoAtivo transacao = service.buscarPorId(id);
+        TransacaoAtivo transacao = service.buscarPorIdAutorizado(id, currentUserService.getUsuarioIdAtual(), currentUserService.isAdmin());
         TransacaoAtivoDTO dto = TransacaoAtivoMapper.toDTO(transacao);
         EntityModel<TransacaoAtivoDTO> model = EntityModel.of(dto,
             linkTo(methodOn(TransacaoAtivoController.class).buscarPorId(id)).withSelfRel(),
@@ -63,9 +70,9 @@ public class TransacaoAtivoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EntityModel<TransacaoAtivoDTO>> atualizar(@PathVariable Long id, @RequestBody TransacaoAtivoDTO dto) {
-        TransacaoAtivo transacao = TransacaoAtivoMapper.toEntity(dto);
-        TransacaoAtivo updated = service.atualizar(id, transacao);
+    public ResponseEntity<EntityModel<TransacaoAtivoDTO>> atualizar(@PathVariable Long id, @Valid @RequestBody TransacaoAtivoDTO dto) {
+        currentUserService.validarAcessoAoUsuario(dto.usuarioId());
+        TransacaoAtivo updated = service.atualizar(id, dto, currentUserService.getUsuarioIdAtual(), currentUserService.isAdmin());
         TransacaoAtivoDTO dtoUpdated = TransacaoAtivoMapper.toDTO(updated);
         EntityModel<TransacaoAtivoDTO> model = EntityModel.of(dtoUpdated,
             linkTo(methodOn(TransacaoAtivoController.class).buscarPorId(id)).withSelfRel(),
@@ -78,7 +85,7 @@ public class TransacaoAtivoController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        service.deletar(id);
+        service.deletar(id, currentUserService.getUsuarioIdAtual(), currentUserService.isAdmin());
         return ResponseEntity.noContent().build();
     }
 }

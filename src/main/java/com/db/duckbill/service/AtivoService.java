@@ -19,6 +19,8 @@ public class AtivoService {
 
     @Transactional
     public Ativo criar(Ativo ativo) {
+        ativo.setTicker(ativo.getTicker().trim().toUpperCase());
+        ativo.setTipo(ativo.getTipo().trim().toUpperCase());
         ativo.setMoedaBase(Optional.ofNullable(ativo.getMoedaBase()).orElse("BRL").toUpperCase());
         return ativoRepository.save(ativo);
     }
@@ -34,9 +36,9 @@ public class AtivoService {
     @Transactional
     public Ativo atualizar(Long id, Ativo ativo) {
         Ativo existente = buscarPorId(id);
-        existente.setTicker(ativo.getTicker());
-        existente.setTipo(ativo.getTipo());
-        existente.setMoedaBase(ativo.getMoedaBase());
+        existente.setTicker(ativo.getTicker().trim().toUpperCase());
+        existente.setTipo(ativo.getTipo().trim().toUpperCase());
+        existente.setMoedaBase(Optional.ofNullable(ativo.getMoedaBase()).orElse("BRL").toUpperCase());
         return ativoRepository.save(existente);
     }
 

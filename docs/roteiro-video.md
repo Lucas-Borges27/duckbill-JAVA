@@ -20,11 +20,13 @@
    - Acessar `/app/despesas/nova`.
    - Criar uma despesa e voltar ao dashboard para ver impacto.
 
-6. Criar transação de ativo (1 min)
+6. Fluxo B (USER) - Investimentos (2 min)
    - Acessar `/app/transacoes/nova`.
-   - Criar uma transação e confirmar sucesso.
+   - Criar uma transação.
+   - Mostrar histórico das transações.
+   - Mostrar resumo consolidado da carteira.
 
-7. Fluxo B (ADMIN) - Exclusão de categoria (2 min)
+7. Fluxo C (ADMIN) - Exclusão de categoria (2 min)
    - Entrar com `admin@duckbill.com`.
    - Acessar `/admin/categorias`.
    - Tentar excluir categoria usada em despesas e mostrar mensagem de bloqueio.

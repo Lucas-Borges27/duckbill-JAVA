@@ -67,6 +67,37 @@
             <button class="btn" type="submit">Salvar transação</button>
         </form>
     </div>
+
+    <div class="grid grid-2" style="margin-top: 16px;">
+        <div class="card">
+            <h2>Resumo da carteira</h2>
+            <div th:if="${#lists.isEmpty(carteira)}" class="hint">Sem posições registradas.</div>
+            <div th:each="item : ${carteira}" class="top3-item">
+                <span>
+                    <strong th:text="${item.ticker}">Ticker</strong>
+                    <span class="hint">Qtd: <span th:text="${#numbers.formatDecimal(item.quantidadeAtual,1,4)}">0</span></span>
+                </span>
+                <strong th:text="${#numbers.formatDecimal(item.financeiroLiquido,1,2)}">0,00</strong>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Histórico das transações</h2>
+            <div th:if="${#lists.isEmpty(transacoes)}" class="hint">Sem transações cadastradas.</div>
+            <div th:each="t : ${transacoes}" class="top3-item">
+                <span>
+                    <strong th:text="${t.ativo.ticker}">Ativo</strong>
+                    <span class="hint" th:text="${t.tipo}">BUY</span>
+                    <span class="hint" th:text="${#temporals.format(t.dataNegocio, 'dd/MM/yyyy')}">data</span>
+                </span>
+                <strong>
+                    <span th:text="${#numbers.formatDecimal(t.qtd,1,4)}">0</span>
+                    <span>x</span>
+                    <span th:text="${#numbers.formatDecimal(t.preco,1,2)}">0,00</span>
+                </strong>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>

@@ -5,6 +5,7 @@ import com.db.duckbill.domain.repo.CategoriaRepository;
 import com.db.duckbill.service.CurrentUserService;
 import com.db.duckbill.service.DespesaService;
 import com.db.duckbill.web.dto.DespesaForm;
+import com.db.duckbill.web.exception.AcessoNegadoException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -69,7 +70,7 @@ public class DespesaWebController {
         var usuario = currentUserService.getUsuarioAtual();
         Despesa despesa = despesaService.buscarPorId(id);
         if (!despesa.getUsuario().getId().equals(usuario.getId())) {
-            throw new IllegalArgumentException("Acesso negado à despesa.");
+            throw new AcessoNegadoException("Acesso negado à despesa.");
         }
         DespesaForm form = new DespesaForm();
         form.setCategoriaId(despesa.getCategoria().getId());

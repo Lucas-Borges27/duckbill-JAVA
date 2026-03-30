@@ -22,11 +22,8 @@ public class CotacaoMoedaService {
 
     @Transactional(readOnly = true)
     public List<CotacaoMoeda> listar() {
-        // Since we don't store currency quotes in database, return empty list
-        return List.of();
+        return repo.findAll();
     }
-
-
 
     @Transactional
     public CotacaoMoeda salvar(CotacaoMoeda cotacao) {

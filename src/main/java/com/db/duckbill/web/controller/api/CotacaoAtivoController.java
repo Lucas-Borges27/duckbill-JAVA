@@ -3,10 +3,12 @@ package com.db.duckbill.web.controller.api;
 import com.db.duckbill.service.CotacaoService;
 import com.db.duckbill.web.dto.CotacaoAtivoDTO;
 import com.db.duckbill.web.mapper.CotacaoAtivoMapper;
+import jakarta.validation.Valid;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,7 +26,8 @@ public class CotacaoAtivoController {
     }
 
     @PostMapping
-    public ResponseEntity<EntityModel<CotacaoAtivoDTO>> salvar(@RequestBody CotacaoAtivoDTO dto) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<EntityModel<CotacaoAtivoDTO>> salvar(@Valid @RequestBody CotacaoAtivoDTO dto) {
         com.db.duckbill.domain.entity.CotacaoAtivo saved = service.salvarCotacaoAtivo(dto.ativoId(), dto.dataRef(), dto.precoFech());
         CotacaoAtivoDTO dtoSaved = CotacaoAtivoMapper.toDTO(saved);
         EntityModel<CotacaoAtivoDTO> model = EntityModel.of(dtoSaved,

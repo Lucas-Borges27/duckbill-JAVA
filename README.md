@@ -1,45 +1,63 @@
 # Duck Bill
 
-## 3.1) Nome da aplicação
-Duck Bill - Aplicação Spring Boot para controle de despesas pessoais, desenvolvida em Java 17, utilizando JPA/Hibernate para persistência em Oracle Database. Destinada a jovens estudantes para rastrear gastos diários, converter moedas e obter relatórios básicos.
+Aplicação Spring Boot para controle de despesas pessoais e investimentos, com frontend Thymeleaf, Spring Security e Flyway.
 
-## 3.2) Nome completo e breve apresentação dos integrantes do Grupo (atividade da qual ficou responsável no projeto)
+## Integrantes
 - Bruno Carlos Soares RM 559250 - Responsável pelos testes funcionais e validação dos endpoints.
 - Lucas Borges de Souza RM 560027 - Desenvolvimento completo da aplicação Spring Boot, controllers e serviços.
 - Pedro Henrique Rodrigues RM 560393 - Criação da documentação, diagramas e README do projeto.
 
-## 3.3) Instrução de como rodar a aplicação
+## Repositório
+- GitHub: `https://github.com/Lucas-Borges27/duckbill-JAVA`
+
+## Pré-requisitos
+- Java 17+
+- Preferencialmente usar `./mvnw`
+- Acesso ao Oracle FIAP em `oracle.fiap.com.br:1521/orcl`
+- Se necessário, rede/VPN com resolução do host `oracle.fiap.com.br`
+
+## Como rodar
+
+### Execução
 1. Clone o repositório.
-2. Configure o banco Oracle via variáveis de ambiente (`DB_URL`, `DB_USER`, `DB_PASSWORD`, `DB_SCHEMA`) ou use o profile `dev`.
-3. Execute: `mvn spring-boot:run -Dspring-boot.run.profiles=dev`
-4. O Flyway criará as tabelas e fará o seed inicial automaticamente.
+2. Exporte as variáveis:
+   `DB_USER`
+   `DB_PASSWORD`
+3. Execute: `./mvnw spring-boot:run`
+4. O Flyway criará/versionará o schema e aplicará as migrations.
+5. A aplicação usa a URL fixa `jdbc:oracle:thin:@oracle.fiap.com.br:1521:orcl`.
 
-Após iniciar a aplicação, acesse:
+### Testes
+- Execute: `./mvnw test`
+- Os testes usam a mesma configuração Oracle da aplicação e dependem de `DB_USER` e `DB_PASSWORD`.
+- Se o host Oracle não estiver acessível na rede da máquina, o teste de contexto irá falhar.
+
+## Acesso
 - Web: `http://localhost:8080/login`
-- Swagger: `http://localhost:8080/swagger-ui.html`
 
-### 3.3.1) Credenciais seed
+### Credenciais seed
 - Admin: `admin@duckbill.com` / `admin123`
 - User: `user@duckbill.com` / `user123`
 
-### 3.3.2) Rotas web principais (Sprint 3)
+### Rotas web principais
 - `/login`
 - `/app/dashboard`
 - `/app/despesas/nova`
 - `/app/transacoes/nova`
 - `/admin/categorias`
+- `/acesso-negado`
 
-## 3.4) Imagem dos diagramas
-### Diagrama ER (Entidade-Relacionamento)
+## Diagramas
+### DER
 ![Diagrama ER](docs/images/DER.png)
 
 ### Diagrama de Classes
 ![Diagrama de Classes](docs/images/D_Classes.png)
 
-## 3.5) Link para vídeo apresentando a Proposta Tecnológica, o público-alvo da aplicação e os problemas que a aplicação se propõe a solucionar
+## Vídeo
 - URL : [https://youtu.be/3hpxwZli2kY?si=s6yuTLSgUr45mRD_](https://youtu.be/3hpxwZli2kY?si=s6yuTLSgUr45mRD_)
 
-## 3.6) Listagem de todos os endpoints (documentação da API)
+## Endpoints principais
 - Usuários: POST/GET /api/v1/usuarios, GET /api/v1/usuarios/{id}
 - Categorias: POST/GET /api/v1/categorias
 - Despesas: POST/GET /api/v1/despesas, GET /api/v1/despesas/top3, GET /api/v1/despesas/insights
@@ -49,79 +67,86 @@ Após iniciar a aplicação, acesse:
 - Cotações de Moeda: GET /api/v1/cotacoes-moeda, GET /api/v1/cotacoes-moeda/{moeda}/{dataRef}
 - Câmbio (serviço utilitário): GET /api/v1/cambio
 
-## Testes com Postman
+## Postman
 Para testar os endpoints da API, importe a coleção do Postman localizada em `docs/postman/duckBill-postman.json`. A coleção inclui exemplos de requisições para todos os endpoints principais.
 
-## Testes Possíveis (via curl ou Postman)
-### 1. Criar Usuário
-```bash
-curl -X POST http://localhost:8080/api/v1/usuarios \
-  -H "Content-Type: application/json" \
-  -d '{"nome":"João Silva","email":"joao@example.com","senha":"senha123"}'
-```
-Resposta esperada: {"id":1,"nome":"João Silva","email":"joao@example.com"}
+## Autenticação da API
+As rotas `/api/**` são protegidas por sessão do Spring Security. Para testar com `curl`, faça login antes e reuse o cookie:
 
-### 2. Criar Categoria
 ```bash
-curl -X POST http://localhost:8080/api/v1/categorias \
+curl -c cookies.txt -X POST http://localhost:8080/login \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=user@duckbill.com&password=user123"
+```
+
+Depois use o cookie salvo:
+
+```bash
+curl -b cookies.txt "http://localhost:8080/api/v1/despesas?usuarioId=1&mes=2026-03"
+```
+
+## Exemplos de uso
+Os exemplos abaixo assumem uma sessão autenticada válida via `cookies.txt`. Para rotas administrativas, faça login com `admin@duckbill.com`.
+
+### 1. Criar usuário
+```bash
+curl -b cookies.txt -X POST http://localhost:8080/api/v1/usuarios \
+  -H "Content-Type: application/json" \
+  -d '{"nome":"João Silva","email":"joao@example.com","senha":"senha123","role":"ROLE_USER"}'
+```
+
+### 2. Criar categoria
+```bash
+curl -b cookies.txt -X POST http://localhost:8080/api/v1/categorias \
   -H "Content-Type: application/json" \
   -d '{"nome":"Alimentacao"}'
 ```
-Resposta: {"id":1,"nome":"Alimentacao"}
 
-### 3. Criar Despesa
+### 3. Criar despesa
 ```bash
-curl -X POST http://localhost:8080/api/v1/despesas \
+curl -b cookies.txt -X POST http://localhost:8080/api/v1/despesas \
   -H "Content-Type: application/json" \
   -d '{"usuarioId":1,"categoriaId":1,"valor":50.00,"moeda":"BRL","dataCompra":"2023-10-01","descricao":"Jantar"}'
 ```
-Resposta: {"id":1,"usuarioId":1,"categoriaId":1,"valor":50.0,"moeda":"BRL","dataCompra":"2023-10-01","descricao":"Jantar"}
 
-### 4. Listar Despesas do Mês
+### 4. Listar despesas do mês
 ```bash
-curl -X GET "http://localhost:8080/api/v1/despesas?usuarioId=1&mes=2023-10"
+curl -b cookies.txt -X GET "http://localhost:8080/api/v1/despesas?usuarioId=1&mes=2023-10"
 ```
-Resposta: Lista de despesas do mês.
 
-### 5. Top 3 Categorias por Gasto
+### 5. Top 3 categorias por gasto
 ```bash
-curl -X GET "http://localhost:8080/api/v1/despesas/top3?usuarioId=1&mes=2023-10"
+curl -b cookies.txt -X GET "http://localhost:8080/api/v1/despesas/top3?usuarioId=1&mes=2023-10"
 ```
-Resposta: [{"categoria":"Alimentacao","total":50.0}]
 
-### 6. Insights Básicos
+### 6. Insights básicos
 ```bash
-curl -X GET "http://localhost:8080/api/v1/despesas/insights?usuarioId=1&mes=2023-10"
+curl -b cookies.txt -X GET "http://localhost:8080/api/v1/despesas/insights?usuarioId=1&mes=2023-10"
 ```
-Resposta: ["Você gasta 100% em Alimentacao. Vale reduzir?"]
 
-### 7. Converter Moeda (via AwesomeAPI)
+### 7. Converter moeda
 ```bash
-curl -X GET "http://localhost:8080/api/v1/cambio?from=USD&to=BRL&valor=100"
+curl -b cookies.txt -X GET "http://localhost:8080/api/v1/cambio?from=USD&to=BRL&valor=100"
 ```
-Resposta: {"valor":100,"to":"BRL","from":"USD","convertido":536.16}
 
-### 8. Criar Ativo (Investimentos)
+### 8. Criar ativo
 ```bash
-curl -X POST http://localhost:8080/api/v1/ativos \
+curl -b cookies.txt -X POST http://localhost:8080/api/v1/ativos \
   -H "Content-Type: application/json" \
   -d '{"ticker":"PETR4.SA","tipo":"STOCK","moedaBase":"BRL"}'
 ```
-Resposta: {"id":1,"ticker":"PETR4.SA","tipo":"STOCK","moedaBase":"BRL"}
 
-### 9. Criar Transação Ativo
+### 9. Criar transação de ativo
 ```bash
-curl -X POST http://localhost:8080/api/v1/transacoes-ativo \
+curl -b cookies.txt -X POST http://localhost:8080/api/v1/transacoes-ativo \
   -H "Content-Type: application/json" \
   -d '{"usuarioId":1,"ativoId":1,"tipo":"BUY","qtd":10.0,"preco":25.50,"dataNegocio":"2023-10-01"}'
 ```
-Resposta: Detalhes da transação.
 
-### 10. Buscar Cotação Moeda
+### 10. Buscar cotação de moeda
 ```bash
-curl -X GET "http://localhost:8080/api/v1/cotacoes-moeda?moeda=USD&dataRef=2023-10-01"
+curl -b cookies.txt -X GET "http://localhost:8080/api/v1/cotacoes-moeda/USD/2023-10-01"
 ```
-Resposta: Cotação do dia.
 
 ## Evolução do Projeto
 
@@ -130,7 +155,6 @@ Resposta: Cotação do dia.
 - CRUD básico para todas as entidades.
 - Persistência com JPA/Hibernate e Oracle Database.
 - Validações básicas com Bean Validation.
-- Documentação com Swagger/OpenAPI.
 - Testes funcionais com Postman.
 
 ### Sprint 2 (Maturity Level 3 - Hypermedia Controls)
@@ -148,18 +172,19 @@ Resposta: Cotação do dia.
 - Autenticação por formulário (Spring Security) e senha BCrypt.
 - Perfis `ROLE_USER` e `ROLE_ADMIN` com autorização por rotas.
 - Fluxo A: Dashboard mensal com total, top 3 e insights (regra no service).
-- Fluxo B: Admin bloqueia exclusão de categoria com despesas vinculadas.
-- Migrações Flyway V1 (schema) e V2 (seed).
+- Fluxo B: Investimentos com formulário, histórico de transações e resumo consolidado da carteira.
+- Fluxo C: Admin bloqueia exclusão de categoria com despesas vinculadas.
+- Migrações Flyway V1 (schema), V2 (seed) e V3 (ajuste de identities).
 
 ## Roteiro do vídeo
 Consulte `docs/roteiro-video.md`.
 
-## Cronograma
-- Semana 1: Entidades/CRUD básicos (Sprint 1 - Maturity Level 1)
-- Semana 2: Relatórios/Conversão de Moedas/Investimentos
-- Semana 3: HATEOAS/Testes/Documentação/Finalização (Sprint 2 - Maturity Level 3)
+## Material para avaliação oral e vídeo
+- README com instalação, execução e acesso.
+- Diagramas em `docs/images`.
+- Roteiro em `docs/roteiro-video.md`.
+- Coleção Postman em `docs/postman/duckBill-postman.json`.
+- Credenciais seed para perfis USER e ADMIN.
 
-## Gestão e Configuração
-- Repositório público no GitHub.
-- Configuração via application.properties (Oracle, AwesomeAPI).
-- Postman collection em docs/postman/duckBill-postman.json.
+## Configuração centralizada
+Toda a configuração da aplicação está em `src/main/resources/application.properties`.

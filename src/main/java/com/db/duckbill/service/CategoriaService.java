@@ -23,6 +23,7 @@ public class CategoriaService {
 
     @Transactional
     public Categoria criar(Categoria categoria) {
+        categoria.setNome(categoria.getNome().trim());
         return categoriaRepository.save(categoria);
     }
 

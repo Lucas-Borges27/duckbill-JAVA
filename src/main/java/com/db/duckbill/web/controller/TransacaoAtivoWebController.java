@@ -25,8 +25,11 @@ public class TransacaoAtivoWebController {
 
     @GetMapping("/nova")
     public String nova(Model model) {
+        var usuario = currentUserService.getUsuarioAtual();
         model.addAttribute("form", new TransacaoAtivoForm());
         model.addAttribute("ativos", ativoRepository.findAll());
+        model.addAttribute("transacoes", transacaoAtivoService.listarPorUsuario(usuario.getId()));
+        model.addAttribute("carteira", transacaoAtivoService.resumoCarteira(usuario.getId()));
         return "app/transacoes-nova";
     }
 
@@ -36,7 +39,10 @@ public class TransacaoAtivoWebController {
                         Model model,
                         RedirectAttributes redirect) {
         if (result.hasErrors()) {
+            var usuario = currentUserService.getUsuarioAtual();
             model.addAttribute("ativos", ativoRepository.findAll());
+            model.addAttribute("transacoes", transacaoAtivoService.listarPorUsuario(usuario.getId()));
+            model.addAttribute("carteira", transacaoAtivoService.resumoCarteira(usuario.getId()));
             return "app/transacoes-nova";
         }
         var usuario = currentUserService.getUsuarioAtual();

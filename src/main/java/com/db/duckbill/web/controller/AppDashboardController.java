@@ -1,7 +1,7 @@
 package com.db.duckbill.web.controller;
 
 import com.db.duckbill.service.CurrentUserService;
-import com.db.duckbill.service.DespesaService;
+import com.db.duckbill.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,7 +15,7 @@ import java.time.YearMonth;
 @RequestMapping("/app")
 @RequiredArgsConstructor
 public class AppDashboardController {
-    private final DespesaService despesaService;
+    private final DashboardService dashboardService;
     private final CurrentUserService currentUserService;
 
     @GetMapping("/dashboard")
@@ -25,9 +25,9 @@ public class AppDashboardController {
 
         model.addAttribute("usuario", usuario);
         model.addAttribute("mes", ym.toString());
-        model.addAttribute("totalMes", despesaService.totalMes(usuario.getId(), ym));
-        model.addAttribute("top3", despesaService.top3Mes(usuario.getId(), ym));
-        model.addAttribute("insights", despesaService.insightsBasicos(usuario.getId(), ym));
+        model.addAttribute("totalMes", dashboardService.totalMes(usuario.getId(), ym));
+        model.addAttribute("top3", dashboardService.top3Mes(usuario.getId(), ym));
+        model.addAttribute("insights", dashboardService.insightsBasicos(usuario.getId(), ym));
 
         return "app/dashboard";
     }

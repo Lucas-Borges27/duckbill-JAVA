@@ -1,8 +1,11 @@
 package com.db.duckbill.web.controller.api;
 
+import com.db.duckbill.service.CurrentUserService;
+import com.db.duckbill.service.DashboardService;
 import com.db.duckbill.service.DespesaService;
 import com.db.duckbill.web.dto.DespesaDTO;
 import com.db.duckbill.web.mapper.DespesaMapper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -23,9 +26,12 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequiredArgsConstructor
 public class DespesaController {
     private final DespesaService service;
+    private final DashboardService dashboardService;
+    private final CurrentUserService currentUserService;
 
     @PostMapping
-    public ResponseEntity<EntityModel<DespesaDTO>> criar(@RequestBody DespesaDTO dto) {
+    public ResponseEntity<EntityModel<DespesaDTO>> criar(@Valid @RequestBody DespesaDTO dto) {
+        currentUserService.validarAcessoAoUsuario(dto.usuarioId());
         var saved = service.criar(DespesaMapper.toEntity(dto));
         DespesaDTO dtoSaved = DespesaMapper.toDTO(saved);
         EntityModel<DespesaDTO> model = EntityModel.of(dtoSaved,
@@ -37,8 +43,9 @@ public class DespesaController {
     }
 
     @GetMapping
-    public CollectionModel<EntityModel<DespesaDTO>> listar(@RequestParam Long usuarioId, @RequestParam String mes) {
-        var ym = YearMonth.parse(mes);
+    public CollectionModel<EntityModel<DespesaDTO>> listar(@RequestParam Long usuarioId, @RequestParam(required = false) String mes) {
+        currentUserService.validarAcessoAoUsuario(usuarioId);
+        var ym = mes == null || mes.isBlank() ? YearMonth.now() : YearMonth.parse(mes);
         List<EntityModel<DespesaDTO>> despesas = service.listarMes(usuarioId, ym).stream()
             .map(d -> EntityModel.of(DespesaMapper.toDTO(d),
                 linkTo(methodOn(UsuarioController.class).obter(d.getUsuario().getId())).withRel("usuario"),
@@ -53,8 +60,9 @@ public class DespesaController {
 
     @GetMapping("/top3")
     public CollectionModel<EntityModel<Map<String, Object>>> top3(@RequestParam Long usuarioId, @RequestParam String mes) {
+        currentUserService.validarAcessoAoUsuario(usuarioId);
         var ym = YearMonth.parse(mes);
-        List<EntityModel<Map<String, Object>>> top3 = service.top3Mes(usuarioId, ym).stream()
+        List<EntityModel<Map<String, Object>>> top3 = dashboardService.top3Mes(usuarioId, ym).stream()
             .map(t -> EntityModel.of(t,
                 linkTo(methodOn(DespesaController.class).listar(usuarioId, mes)).withRel("despesas")
             ))
@@ -66,7 +74,8 @@ public class DespesaController {
 
     @GetMapping("/insights")
     public ResponseEntity<CollectionModel<EntityModel<String>>> insights(@RequestParam Long usuarioId, @RequestParam String mes) {
-        List<String> insightsList = service.insightsBasicos(usuarioId, YearMonth.parse(mes));
+        currentUserService.validarAcessoAoUsuario(usuarioId);
+        List<String> insightsList = dashboardService.insightsBasicos(usuarioId, YearMonth.parse(mes));
         List<EntityModel<String>> insights = insightsList.stream()
             .map(i -> EntityModel.of(i,
                 linkTo(methodOn(DespesaController.class).listar(usuarioId, mes)).withRel("despesas")

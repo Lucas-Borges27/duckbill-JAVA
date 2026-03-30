@@ -4,10 +4,12 @@ import com.db.duckbill.domain.entity.Ativo;
 import com.db.duckbill.service.AtivoService;
 import com.db.duckbill.web.dto.AtivoDTO;
 import com.db.duckbill.web.mapper.AtivoMapper;
+import jakarta.validation.Valid;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,7 +27,8 @@ public class AtivoController {
     }
 
     @PostMapping
-    public ResponseEntity<EntityModel<AtivoDTO>> criar(@RequestBody AtivoDTO dto) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<EntityModel<AtivoDTO>> criar(@Valid @RequestBody AtivoDTO dto) {
         Ativo saved = service.criar(AtivoMapper.toEntity(dto));
         AtivoDTO dtoSaved = AtivoMapper.toDTO(saved);
         EntityModel<AtivoDTO> model = EntityModel.of(dtoSaved,
@@ -61,7 +64,8 @@ public class AtivoController {
     }
 
     @PutMapping("/{id}")
-    public EntityModel<AtivoDTO> atualizar(@PathVariable Long id, @RequestBody AtivoDTO dto) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public EntityModel<AtivoDTO> atualizar(@PathVariable Long id, @Valid @RequestBody AtivoDTO dto) {
         Ativo ativo = AtivoMapper.toEntity(dto);
         AtivoDTO updated = AtivoMapper.toDTO(service.atualizar(id, ativo));
         return EntityModel.of(updated,
@@ -72,6 +76,7 @@ public class AtivoController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         service.deletar(id);
         return ResponseEntity.noContent().build();

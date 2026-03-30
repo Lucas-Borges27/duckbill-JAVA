@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -25,8 +24,13 @@ public class CotacaoMoedaController {
 
     @GetMapping
     public CollectionModel<EntityModel<CotacaoMoedaDTO>> listar() {
-        // Since we don't store currency quotes in database, return empty collection with self link
-        return CollectionModel.of(List.of(),
+        List<EntityModel<CotacaoMoedaDTO>> cotacoes = service.listar().stream()
+            .map(cotacao -> EntityModel.of(CotacaoMoedaMapper.toDTO(cotacao),
+                linkTo(methodOn(CotacaoMoedaController.class).buscar(cotacao.getId().getMoeda(), cotacao.getId().getDataRef().toString())).withSelfRel()
+            ))
+            .collect(Collectors.toList());
+
+        return CollectionModel.of(cotacoes,
             linkTo(methodOn(CotacaoMoedaController.class).listar()).withSelfRel()
         );
     }

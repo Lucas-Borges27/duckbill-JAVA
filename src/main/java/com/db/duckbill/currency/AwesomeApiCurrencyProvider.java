@@ -65,8 +65,7 @@ public class AwesomeApiCurrencyProvider implements CurrencyProvider {
             return result;
 
         } catch (Exception e) {
-            // Fallback: return amount unchanged if conversion fails
-            return amount;
+            throw new IllegalStateException("Não foi possível consultar a cotação externa no momento.");
         }
     }
 
@@ -77,7 +76,6 @@ public class AwesomeApiCurrencyProvider implements CurrencyProvider {
         }
 
         try {
-            // For historical quotes, try current date if historical fails
             String pair = from.toUpperCase() + "-" + to.toUpperCase();
             String dateStr = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
@@ -89,26 +87,19 @@ public class AwesomeApiCurrencyProvider implements CurrencyProvider {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(json);
             if (!root.isArray() || root.size() == 0) {
-                // Fallback to current quote
-                return convert(from, to, BigDecimal.ONE);
+                throw new IllegalStateException("Cotação histórica não encontrada para a data informada.");
             }
 
             JsonNode quote = root.get(0);
             if (!quote.has("bid")) {
-                // Fallback to current quote
-                return convert(from, to, BigDecimal.ONE);
+                throw new IllegalStateException("Resposta inválida da AwesomeAPI.");
             }
 
             BigDecimal rate = new BigDecimal(quote.get("bid").asText());
             return rate;
 
         } catch (Exception e) {
-            // Fallback: return current conversion rate
-            try {
-                return convert(from, to, BigDecimal.ONE);
-            } catch (Exception ex) {
-                return BigDecimal.ONE;
-            }
+            throw new IllegalStateException("Não foi possível consultar a cotação histórica no momento.");
         }
     }
 }

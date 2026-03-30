@@ -1,12 +1,14 @@
 package com.db.duckbill.web.controller.api;
 
 import com.db.duckbill.domain.entity.Categoria;
-import com.db.duckbill.domain.repo.CategoriaRepository;
+import com.db.duckbill.service.CategoriaService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,11 +21,12 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping("/api/v1/categorias")
 @RequiredArgsConstructor
 public class CategoriaController {
-    private final CategoriaRepository repo;
+    private final CategoriaService service;
 
     @PostMapping
-    public ResponseEntity<EntityModel<Categoria>> criar(@RequestBody Categoria c) {
-        Categoria saved = repo.save(c);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<EntityModel<Categoria>> criar(@Valid @RequestBody Categoria c) {
+        Categoria saved = service.criar(c);
         EntityModel<Categoria> model = EntityModel.of(saved,
             linkTo(methodOn(CategoriaController.class).listar()).withRel("categorias")
         );
@@ -32,7 +35,7 @@ public class CategoriaController {
 
     @GetMapping
     public CollectionModel<EntityModel<Categoria>> listar() {
-        List<EntityModel<Categoria>> categorias = repo.findAll().stream()
+        List<EntityModel<Categoria>> categorias = service.listar().stream()
             .map(c -> EntityModel.of(c,
                 linkTo(methodOn(CategoriaController.class).listar()).withRel("categorias")
             ))
