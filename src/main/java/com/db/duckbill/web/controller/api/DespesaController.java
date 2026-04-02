@@ -7,8 +7,6 @@ import com.db.duckbill.web.dto.DespesaDTO;
 import com.db.duckbill.web.mapper.DespesaMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +15,6 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/v1/despesas")
@@ -30,60 +25,71 @@ public class DespesaController {
     private final CurrentUserService currentUserService;
 
     @PostMapping
-    public ResponseEntity<EntityModel<DespesaDTO>> criar(@Valid @RequestBody DespesaDTO dto) {
-        currentUserService.validarAcessoAoUsuario(dto.usuarioId());
-        var saved = service.criar(DespesaMapper.toEntity(dto));
+    public ResponseEntity<DespesaDTO> criar(@Valid @RequestBody DespesaDTO dto) {
+        Long usuarioId = currentUserService.resolveAccessibleUserId(dto.usuarioId());
+        var saved = service.criar(DespesaMapper.toEntity(withUsuario(dto, usuarioId)));
         DespesaDTO dtoSaved = DespesaMapper.toDTO(saved);
-        EntityModel<DespesaDTO> model = EntityModel.of(dtoSaved,
-            linkTo(methodOn(DespesaController.class).listar(saved.getUsuario().getId(), null)).withRel("despesas"),
-            linkTo(methodOn(UsuarioController.class).obter(saved.getUsuario().getId())).withRel("usuario"),
-            linkTo(methodOn(CategoriaController.class).listar()).withRel("categorias")
-        );
-        return ResponseEntity.status(HttpStatus.CREATED).body(model);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dtoSaved);
     }
 
     @GetMapping
-    public CollectionModel<EntityModel<DespesaDTO>> listar(@RequestParam Long usuarioId, @RequestParam(required = false) String mes) {
-        currentUserService.validarAcessoAoUsuario(usuarioId);
+    public List<DespesaDTO> listar(@RequestParam(required = false) Long usuarioId, @RequestParam(required = false) String mes) {
+        Long alvo = resolverUsuarioId(usuarioId);
         var ym = mes == null || mes.isBlank() ? YearMonth.now() : YearMonth.parse(mes);
-        List<EntityModel<DespesaDTO>> despesas = service.listarMes(usuarioId, ym).stream()
-            .map(d -> EntityModel.of(DespesaMapper.toDTO(d),
-                linkTo(methodOn(UsuarioController.class).obter(d.getUsuario().getId())).withRel("usuario"),
-                linkTo(methodOn(CategoriaController.class).listar()).withRel("categorias")
-            ))
+        return service.listarMes(alvo, ym).stream()
+            .map(DespesaMapper::toDTO)
             .collect(Collectors.toList());
-        return CollectionModel.of(despesas,
-            linkTo(methodOn(DespesaController.class).listar(usuarioId, mes)).withSelfRel(),
-            linkTo(methodOn(UsuarioController.class).obter(usuarioId)).withRel("usuario")
-        );
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DespesaDTO> obter(@PathVariable Long id) {
+        var despesa = service.buscarPorId(id);
+        currentUserService.validarAcessoAoUsuario(despesa.getUsuario().getId());
+        return ResponseEntity.ok(DespesaMapper.toDTO(despesa));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<DespesaDTO> atualizar(@PathVariable Long id, @Valid @RequestBody DespesaDTO dto) {
+        Long usuarioId = currentUserService.resolveAccessibleUserId(dto.usuarioId());
+        var payload = DespesaMapper.toEntity(withUsuario(dto, usuarioId));
+
+        return ResponseEntity.ok(DespesaMapper.toDTO(service.atualizar(id, usuarioId, payload)));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        var despesa = service.buscarPorId(id);
+        currentUserService.validarAcessoAoUsuario(despesa.getUsuario().getId());
+        service.deletar(id, despesa.getUsuario().getId());
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/top3")
-    public CollectionModel<EntityModel<Map<String, Object>>> top3(@RequestParam Long usuarioId, @RequestParam String mes) {
-        currentUserService.validarAcessoAoUsuario(usuarioId);
+    public List<Map<String, Object>> top3(@RequestParam(required = false) Long usuarioId, @RequestParam String mes) {
+        Long alvo = resolverUsuarioId(usuarioId);
         var ym = YearMonth.parse(mes);
-        List<EntityModel<Map<String, Object>>> top3 = dashboardService.top3Mes(usuarioId, ym).stream()
-            .map(t -> EntityModel.of(t,
-                linkTo(methodOn(DespesaController.class).listar(usuarioId, mes)).withRel("despesas")
-            ))
-            .collect(Collectors.toList());
-        return CollectionModel.of(top3,
-            linkTo(methodOn(DespesaController.class).top3(usuarioId, mes)).withSelfRel()
-        );
+        return dashboardService.top3Mes(alvo, ym);
     }
 
     @GetMapping("/insights")
-    public ResponseEntity<CollectionModel<EntityModel<String>>> insights(@RequestParam Long usuarioId, @RequestParam String mes) {
-        currentUserService.validarAcessoAoUsuario(usuarioId);
-        List<String> insightsList = dashboardService.insightsBasicos(usuarioId, YearMonth.parse(mes));
-        List<EntityModel<String>> insights = insightsList.stream()
-            .map(i -> EntityModel.of(i,
-                linkTo(methodOn(DespesaController.class).listar(usuarioId, mes)).withRel("despesas")
-            ))
-            .collect(Collectors.toList());
-        CollectionModel<EntityModel<String>> model = CollectionModel.of(insights,
-            linkTo(methodOn(DespesaController.class).insights(usuarioId, mes)).withSelfRel()
+    public ResponseEntity<List<String>> insights(@RequestParam(required = false) Long usuarioId, @RequestParam String mes) {
+        Long alvo = resolverUsuarioId(usuarioId);
+        return ResponseEntity.ok(dashboardService.insightsBasicos(alvo, YearMonth.parse(mes)));
+    }
+
+    private Long resolverUsuarioId(Long usuarioId) {
+        return currentUserService.resolveAccessibleUserId(usuarioId);
+    }
+
+    private DespesaDTO withUsuario(DespesaDTO dto, Long usuarioId) {
+        return new DespesaDTO(
+            dto.id(),
+            usuarioId,
+            dto.categoriaId(),
+            dto.valor(),
+            dto.moeda(),
+            dto.dataCompra(),
+            dto.descricao()
         );
-        return ResponseEntity.ok(model);
     }
 }

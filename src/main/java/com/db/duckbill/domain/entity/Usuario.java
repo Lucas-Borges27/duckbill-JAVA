@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "USUARIO")
 @Getter
@@ -37,4 +39,9 @@ public class Usuario {
     @Size(max = 20)
     @Column(name = "ROLE", nullable = false)
     private String role = "ROLE_USER";
+
+    @NotNull
+    @DecimalMin(value = "0.00", message = "Saldo deve ser maior ou igual a zero")
+    @Column(name = "SALDO", nullable = false, precision = 12, scale = 2)
+    private BigDecimal saldo = BigDecimal.ZERO;
 }

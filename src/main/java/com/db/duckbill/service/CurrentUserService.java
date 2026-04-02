@@ -28,6 +28,12 @@ public class CurrentUserService {
         return getUsuarioAtual().getId();
     }
 
+    public Long resolveAccessibleUserId(Long usuarioId) {
+        Long resolvedUserId = usuarioId == null ? getUsuarioIdAtual() : usuarioId;
+        validarAcessoAoUsuario(resolvedUserId);
+        return resolvedUserId;
+    }
+
     public boolean isAdmin() {
         return getUsuarioAtual().getRole().equals("ROLE_ADMIN");
     }

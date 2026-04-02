@@ -53,7 +53,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
-        return build(HttpStatus.BAD_REQUEST, "Dados duplicados ou violação de restrição.");
+        return build(HttpStatus.CONFLICT, "Dados duplicados ou violação de restrição.");
     }
 
     @ExceptionHandler({

@@ -3,12 +3,11 @@ package com.db.duckbill.web.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
-public record UsuarioCreateDTO(
+public record AuthRegisterRequest(
     @NotBlank(message = "Nome é obrigatório")
     @Size(max = 100, message = "Nome deve ter até 100 caracteres")
     String nome,
@@ -23,8 +22,5 @@ public record UsuarioCreateDTO(
     String senha,
 
     @DecimalMin(value = "0.00", message = "Saldo deve ser maior ou igual a zero")
-    BigDecimal saldo,
-
-    @Pattern(regexp = "ROLE_USER", message = "Role permitida é ROLE_USER")
-    String role
+    BigDecimal saldo
 ) {}

@@ -25,18 +25,8 @@ public class TransacaoAtivoService {
 
     @Transactional
     public TransacaoAtivo criar(TransacaoAtivoDTO dto) {
-        var usuario = usuarioRepository.findById(dto.usuarioId())
-                .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
-        var ativo = ativoRepository.findById(dto.ativoId())
-                .orElseThrow(() -> new NoSuchElementException("Ativo não encontrado"));
-
         TransacaoAtivo transacao = new TransacaoAtivo();
-        transacao.setUsuario(usuario);
-        transacao.setAtivo(ativo);
-        transacao.setTipo(dto.tipo().toUpperCase());
-        transacao.setQtd(dto.qtd());
-        transacao.setPreco(dto.preco());
-        transacao.setDataNegocio(dto.dataNegocio());
+        applyDto(transacao, dto);
 
         return transacaoAtivoRepository.save(transacao);
     }
@@ -64,17 +54,7 @@ public class TransacaoAtivoService {
     @Transactional
     public TransacaoAtivo atualizar(Long id, TransacaoAtivoDTO dto, Long usuarioId, boolean admin) {
         TransacaoAtivo existente = buscarPorIdAutorizado(id, usuarioId, admin);
-        var usuario = usuarioRepository.findById(dto.usuarioId())
-            .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado"));
-        var ativo = ativoRepository.findById(dto.ativoId())
-            .orElseThrow(() -> new NoSuchElementException("Ativo não encontrado"));
-
-        existente.setUsuario(usuario);
-        existente.setAtivo(ativo);
-        existente.setTipo(dto.tipo().toUpperCase());
-        existente.setQtd(dto.qtd());
-        existente.setPreco(dto.preco());
-        existente.setDataNegocio(dto.dataNegocio());
+        applyDto(existente, dto);
         return transacaoAtivoRepository.save(existente);
     }
 
@@ -104,5 +84,16 @@ public class TransacaoAtivoService {
             })
             .sorted(java.util.Comparator.comparing(CarteiraResumoDTO::ticker))
             .toList();
+    }
+
+    private void applyDto(TransacaoAtivo transacao, TransacaoAtivoDTO dto) {
+        transacao.setUsuario(usuarioRepository.findById(dto.usuarioId())
+            .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado")));
+        transacao.setAtivo(ativoRepository.findById(dto.ativoId())
+            .orElseThrow(() -> new NoSuchElementException("Ativo não encontrado")));
+        transacao.setTipo(dto.tipo().toUpperCase());
+        transacao.setQtd(dto.qtd());
+        transacao.setPreco(dto.preco());
+        transacao.setDataNegocio(dto.dataNegocio());
     }
 }

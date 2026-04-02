@@ -12,19 +12,21 @@
 	<artifactId>duckbill</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>duckbill</name>
-	<description>Demo project for Spring Boot</description>
-	<url/>
+	<description>Aplicação Spring Boot para gestão de despesas, investimentos, metas e alertas financeiros.</description>
+	<url>https://github.com/Lucas-Borges27/duckbill-JAVA</url>
 	<licenses>
 		<license/>
 	</licenses>
 	<developers>
-		<developer/>
+		<developer>
+			<name>Lucas Borges de Souza</name>
+		</developer>
 	</developers>
 	<scm>
-		<connection/>
-		<developerConnection/>
+		<connection>scm:git:https://github.com/Lucas-Borges27/duckbill-JAVA.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/Lucas-Borges27/duckbill-JAVA.git</developerConnection>
 		<tag/>
-		<url/>
+		<url>https://github.com/Lucas-Borges27/duckbill-JAVA</url>
 	</scm>
 	<properties>
 		<java.version>17</java.version>
@@ -53,6 +55,23 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.12.7</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.12.7</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>0.12.7</version>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.thymeleaf.extras</groupId>
