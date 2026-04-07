@@ -3,7 +3,85 @@
     "name": "Duck Bill API (Local)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "email",
+      "value": "admin@duckbill.com"
+    },
+    {
+      "key": "senha",
+      "value": "admin123"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "role",
+      "value": ""
+    }
+  ],
   "item": [
+    {
+      "name": "Login API JWT",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"{{email}}\",\"senha\":\"{{senha}}\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "auth", "login"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Login realizado com sucesso', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "var jsonData = pm.response.json();",
+              "pm.collectionVariables.set('token', jsonData.token);",
+              "pm.collectionVariables.set('userId', String(jsonData.usuario.id));",
+              "pm.collectionVariables.set('role', jsonData.usuario.role);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
     {
       "name": "Criar Usuário",
       "request": {
@@ -19,10 +97,8 @@
           "raw": "{\"nome\":\"João Silva\",\"email\":\"joao@example.com\",\"senha\":\"senha123\"}"
         },
         "url": {
-          "raw": "http://localhost:8080/api/v1/usuarios",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{baseUrl}}/api/v1/usuarios",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "usuarios"]
         }
       },
@@ -47,10 +123,8 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/api/v1/usuarios",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{baseUrl}}/api/v1/usuarios",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "usuarios"]
         }
       },
@@ -84,10 +158,8 @@
           "raw": "{\"nome\":\"Alimentacao\"}"
         },
         "url": {
-          "raw": "http://localhost:8080/api/v1/categorias",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{baseUrl}}/api/v1/categorias",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "categorias"]
         }
       },
@@ -112,10 +184,8 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/api/v1/categorias",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{baseUrl}}/api/v1/categorias",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "categorias"]
         }
       },
@@ -146,13 +216,11 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\"usuarioId\":1,\"categoriaId\":1,\"valor\":50.00,\"moeda\":\"BRL\",\"dataCompra\":\"2023-10-01\",\"descricao\":\"Jantar\"}"
+          "raw": "{\"usuarioId\":{{userId}},\"categoriaId\":1,\"valor\":50.00,\"moeda\":\"BRL\",\"dataCompra\":\"2026-03-10\",\"descricao\":\"Jantar\"}"
         },
         "url": {
-          "raw": "http://localhost:8080/api/v1/despesas",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{baseUrl}}/api/v1/despesas",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "despesas"]
         }
       },
@@ -177,19 +245,17 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/api/v1/despesas?usuarioId=1&mes=2023-10",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{baseUrl}}/api/v1/despesas?usuarioId={{userId}}&mes=2026-03",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "despesas"],
           "query": [
             {
               "key": "usuarioId",
-              "value": "1"
+              "value": "{{userId}}"
             },
             {
               "key": "mes",
-              "value": "2023-10"
+              "value": "2026-03"
             }
           ]
         }
@@ -215,19 +281,17 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/api/v1/despesas/top3?usuarioId=1&mes=2023-10",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{baseUrl}}/api/v1/despesas/top3?usuarioId={{userId}}&mes=2026-03",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "despesas", "top3"],
           "query": [
             {
               "key": "usuarioId",
-              "value": "1"
+              "value": "{{userId}}"
             },
             {
               "key": "mes",
-              "value": "2023-10"
+              "value": "2026-03"
             }
           ]
         }
@@ -253,19 +317,17 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/api/v1/despesas/insights?usuarioId=1&mes=2023-10",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{baseUrl}}/api/v1/despesas/insights?usuarioId={{userId}}&mes=2026-03",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "despesas", "insights"],
           "query": [
             {
               "key": "usuarioId",
-              "value": "1"
+              "value": "{{userId}}"
             },
             {
               "key": "mes",
-              "value": "2023-10"
+              "value": "2026-03"
             }
           ]
         }
@@ -291,10 +353,8 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/api/v1/cambio?valor=100&from=USD&to=BRL",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{baseUrl}}/api/v1/cambio?valor=100&from=USD&to=BRL",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "cambio"],
           "query": [
             {
@@ -342,10 +402,8 @@
           "raw": "{\"ticker\":\"PETR4.SA\",\"tipo\":\"STOCK\",\"moedaBase\":\"BRL\"}"
         },
         "url": {
-          "raw": "http://localhost:8080/api/v1/ativos",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{baseUrl}}/api/v1/ativos",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "ativos"]
         }
       },
@@ -370,10 +428,8 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/api/v1/ativos",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{baseUrl}}/api/v1/ativos",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "ativos"]
         }
       },
@@ -404,13 +460,11 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\"usuarioId\":1,\"ativoId\":1,\"tipo\":\"BUY\",\"qtd\":10.0,\"preco\":25.50,\"dataNegocio\":\"2023-10-01\"}"
+          "raw": "{\"usuarioId\":{{userId}},\"ativoId\":1,\"tipo\":\"BUY\",\"qtd\":10.0,\"preco\":25.50,\"dataNegocio\":\"2026-03-10\"}"
         },
         "url": {
-          "raw": "http://localhost:8080/api/v1/transacoes-ativo",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{baseUrl}}/api/v1/transacoes-ativo",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "transacoes-ativo"]
         }
       },
@@ -435,10 +489,8 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/api/v1/transacoes-ativo",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{baseUrl}}/api/v1/transacoes-ativo",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "transacoes-ativo"]
         }
       },
@@ -463,10 +515,8 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/api/v1/cotacoes-moeda/USD/2024-11-03",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{baseUrl}}/api/v1/cotacoes-moeda/USD/2024-11-03",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "cotacoes-moeda", "USD", "2024-11-03"]
         }
       },
@@ -491,10 +541,8 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/api/v1/cotacoes-ativo/1/2024-11-03",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8080",
+          "raw": "{{baseUrl}}/api/v1/cotacoes-ativo/1/2024-11-03",
+          "host": ["{{baseUrl}}"],
           "path": ["api", "v1", "cotacoes-ativo", "1", "2024-11-03"]
         }
       },
