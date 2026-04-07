@@ -37,6 +37,18 @@
     {
       "key": "role",
       "value": ""
+    },
+    {
+      "key": "ativoId",
+      "value": ""
+    },
+    {
+      "key": "transacaoAtivoId",
+      "value": ""
+    },
+    {
+      "key": "despesaId",
+      "value": ""
     }
   ],
   "item": [
@@ -229,6 +241,11 @@
           "listen": "test",
           "script": {
             "exec": [
+              "if (pm.response.code === 201) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.collectionVariables.set('despesaId', String(jsonData.id));",
+              "}",
+              "",
               "pm.test('Response has HATEOAS links', function () {",
               "    var jsonData = pm.response.json();",
               "    pm.expect(jsonData).to.have.property('_links');",
@@ -238,6 +255,51 @@
           }
         }
       ]
+    },
+    {
+      "name": "Buscar Despesa por ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/despesas/{{despesaId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "despesas", "{{despesaId}}"]
+        }
+      }
+    },
+    {
+      "name": "Atualizar Despesa",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"usuarioId\":{{userId}},\"categoriaId\":1,\"valor\":79.90,\"moeda\":\"BRL\",\"dataCompra\":\"2026-03-10\",\"descricao\":\"Jantar atualizado\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/despesas/{{despesaId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "despesas", "{{despesaId}}"]
+        }
+      }
+    },
+    {
+      "name": "Excluir Despesa",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/despesas/{{despesaId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "despesas", "{{despesaId}}"]
+        }
+      }
     },
     {
       "name": "Listar Despesas do Mês",
@@ -412,6 +474,11 @@
           "listen": "test",
           "script": {
             "exec": [
+              "if (pm.response.code === 201) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.collectionVariables.set('ativoId', String(jsonData.id));",
+              "}",
+              "",
               "pm.test('Response has HATEOAS links', function () {",
               "    var jsonData = pm.response.json();",
               "    pm.expect(jsonData).to.have.property('_links');",
@@ -421,6 +488,51 @@
           }
         }
       ]
+    },
+    {
+      "name": "Buscar Ativo por ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/ativos/{{ativoId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "ativos", "{{ativoId}}"]
+        }
+      }
+    },
+    {
+      "name": "Atualizar Ativo",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"ticker\":\"PETR4.SA\",\"tipo\":\"STOCK\",\"moedaBase\":\"USD\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/ativos/{{ativoId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "ativos", "{{ativoId}}"]
+        }
+      }
+    },
+    {
+      "name": "Excluir Ativo",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/ativos/{{ativoId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "ativos", "{{ativoId}}"]
+        }
+      }
     },
     {
       "name": "Listar Ativos",
@@ -473,6 +585,11 @@
           "listen": "test",
           "script": {
             "exec": [
+              "if (pm.response.code === 201) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.collectionVariables.set('transacaoAtivoId', String(jsonData.id));",
+              "}",
+              "",
               "pm.test('Response has HATEOAS links', function () {",
               "    var jsonData = pm.response.json();",
               "    pm.expect(jsonData).to.have.property('_links');",
@@ -482,6 +599,51 @@
           }
         }
       ]
+    },
+    {
+      "name": "Buscar Transação Ativo por ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/transacoes-ativo/{{transacaoAtivoId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "transacoes-ativo", "{{transacaoAtivoId}}"]
+        }
+      }
+    },
+    {
+      "name": "Atualizar Transação Ativo",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"usuarioId\":{{userId}},\"ativoId\":{{ativoId}},\"tipo\":\"BUY\",\"qtd\":15.0,\"preco\":27.75,\"dataNegocio\":\"2026-03-10\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/transacoes-ativo/{{transacaoAtivoId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "transacoes-ativo", "{{transacaoAtivoId}}"]
+        }
+      }
+    },
+    {
+      "name": "Excluir Transação Ativo",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/transacoes-ativo/{{transacaoAtivoId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "transacoes-ativo", "{{transacaoAtivoId}}"]
+        }
+      }
     },
     {
       "name": "Listar Transações Ativo",
@@ -541,9 +703,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/v1/cotacoes-ativo/1/2024-11-03",
+          "raw": "{{baseUrl}}/api/v1/cotacoes-ativo/{{ativoId}}/2024-11-03",
           "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "cotacoes-ativo", "1", "2024-11-03"]
+          "path": ["api", "v1", "cotacoes-ativo", "{{ativoId}}", "2024-11-03"]
         }
       },
       "event": [
