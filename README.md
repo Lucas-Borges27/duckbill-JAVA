@@ -114,8 +114,8 @@ Defina a base antes dos testes:
 
 ```bash
 export BASE_URL=http://localhost:8080
-# ou:
-# export BASE_URL=http://<IP_PUBLICO_DO_CONTAINER>:8080
+ou:
+export BASE_URL=http://137.131.144.164:8080
 ```
 
 ```bash
@@ -138,7 +138,6 @@ Resposta esperada:
     "role": "ROLE_USER",
     "saldo": 2500.00
   }
-}
 ```
 
 ## Exemplos de uso
