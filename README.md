@@ -27,6 +27,27 @@ Aplicação Spring Boot para controle de despesas pessoais, metas de poupança, 
 4. O Flyway criará/versionará o schema e aplicará as migrations.
 5. A aplicação usa a URL fixa `jdbc:oracle:thin:@oracle.fiap.com.br:1521:orcl`.
 
+### Ambientes de teste (local e IP público)
+Você pode testar a aplicação de duas formas:
+
+1. Localmente (na própria máquina):
+   - Suba com `./mvnw spring-boot:run`
+   - Base URL: `http://localhost:8080`
+
+2. Remotamente, via IP público de um container com a imagem desta aplicação:
+   - Exemplo de publicação da imagem no host/container:
+     ```bash
+     docker run -d --name duckbill \
+       -p 8080:8080 \
+       -e DB_USER=seu_usuario \
+       -e DB_PASSWORD=sua_senha \
+       <sua-imagem-duckbill>:latest
+     ```
+   - Base URL: `http://<IP_PUBLICO_DO_CONTAINER>:8080`
+   - Exemplo: `http://34.123.45.67:8080/login`
+
+Dica: nos testes de API e web, basta trocar `localhost` pelo IP público quando estiver validando no container remoto.
+
 ### Testes
 - Execute: `./mvnw test`
 - Os testes usam a mesma configuração Oracle da aplicação e dependem de `DB_USER` e `DB_PASSWORD`.
@@ -35,7 +56,8 @@ Aplicação Spring Boot para controle de despesas pessoais, metas de poupança, 
   `./mvnw -q -Dtest=DashboardServiceTest,MetaServiceTest,TarefaFinanceiraServiceTest test`
 
 ## Acesso
-- Web: `http://localhost:8080/login`
+- Local: `http://localhost:8080/login`
+- Container com IP público: `http://<IP_PUBLICO_DO_CONTAINER>:8080/login`
 
 ### Credenciais seed
 - Admin: `admin@duckbill.com` / `admin123`
@@ -79,13 +101,25 @@ Aplicação Spring Boot para controle de despesas pessoais, metas de poupança, 
 - Câmbio (serviço utilitário): GET /api/v1/cambio
 
 ## Postman
-Para testar os endpoints da API, importe a coleção do Postman localizada em `docs/postman/duckBill-postman.json`. A coleção inclui exemplos de requisições para todos os endpoints principais.
+Para testar os endpoints da API, importe uma das coleções abaixo:
+- Local: `docs/postman/duckBill-postman-local.json`
+- IP público (`137.131.144.164`): `docs/postman/duckBill-postman-ip-publico.json`
+
+Observação: o arquivo `docs/postman/duckBill-postman.json` continua como coleção base original.
 
 ## Autenticação da API
 As rotas `/api/**` usam JWT Bearer Token. O frontend web em Thymeleaf continua com login por formulário e sessão, mas o app mobile consome apenas a API JWT.
 
+Defina a base antes dos testes:
+
 ```bash
-curl -X POST http://localhost:8080/api/v1/auth/login \
+export BASE_URL=http://localhost:8080
+# ou:
+# export BASE_URL=http://<IP_PUBLICO_DO_CONTAINER>:8080
+```
+
+```bash
+curl -X POST $BASE_URL/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"user@duckbill.com","senha":"user123"}'
 ```
@@ -108,11 +142,11 @@ Resposta esperada:
 ```
 
 ## Exemplos de uso
-Os exemplos abaixo assumem um token JWT válido em `TOKEN`. Para rotas administrativas, faça login com `admin@duckbill.com`.
+Os exemplos abaixo assumem um token JWT válido em `TOKEN` e `BASE_URL` configurado. Para rotas administrativas, faça login com `admin@duckbill.com`.
 
 ### 1. Criar usuário
 ```bash
-curl -X POST http://localhost:8080/api/v1/usuarios \
+curl -X POST $BASE_URL/api/v1/usuarios \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"nome":"João Silva","email":"joao@example.com","senha":"senha123","role":"ROLE_USER"}'
@@ -120,7 +154,7 @@ curl -X POST http://localhost:8080/api/v1/usuarios \
 
 ### 2. Criar categoria
 ```bash
-curl -X POST http://localhost:8080/api/v1/categorias \
+curl -X POST $BASE_URL/api/v1/categorias \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"nome":"Alimentacao"}'
@@ -128,7 +162,7 @@ curl -X POST http://localhost:8080/api/v1/categorias \
 
 ### 3. Criar despesa
 ```bash
-curl -X POST http://localhost:8080/api/v1/despesas \
+curl -X POST $BASE_URL/api/v1/despesas \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"categoriaId":1,"valor":50.00,"moeda":"BRL","dataCompra":"2026-03-10","descricao":"Jantar"}'
@@ -137,30 +171,30 @@ curl -X POST http://localhost:8080/api/v1/despesas \
 ### 4. Listar despesas do mês
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
-  "http://localhost:8080/api/v1/despesas?mes=2026-03"
+  "$BASE_URL/api/v1/despesas?mes=2026-03"
 ```
 
 ### 5. Top 3 categorias por gasto
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
-  "http://localhost:8080/api/v1/despesas/top3?mes=2026-03"
+  "$BASE_URL/api/v1/despesas/top3?mes=2026-03"
 ```
 
 ### 6. Insights básicos
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
-  "http://localhost:8080/api/v1/despesas/insights?mes=2026-03"
+  "$BASE_URL/api/v1/despesas/insights?mes=2026-03"
 ```
 
 ### 7. Converter moeda
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
-  "http://localhost:8080/api/v1/cambio?from=USD&to=BRL&valor=100"
+  "$BASE_URL/api/v1/cambio?from=USD&to=BRL&valor=100"
 ```
 
 ### 8. Criar meta
 ```bash
-curl -X POST http://localhost:8080/api/v1/metas \
+curl -X POST $BASE_URL/api/v1/metas \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"titulo":"Notebook novo","valorObjetivo":4500,"valorGuardado":0,"icone":"laptop","corDestaque":"#67c1ff"}'
@@ -168,7 +202,7 @@ curl -X POST http://localhost:8080/api/v1/metas \
 
 ### 9. Criar tarefa financeira
 ```bash
-curl -X POST http://localhost:8080/api/v1/tarefas \
+curl -X POST $BASE_URL/api/v1/tarefas \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"titulo":"Pagar cartão","descricao":"Fechar a fatura do mês","valorEstimado":650,"dataLimite":"2026-04-02","notificarEm":"2026-04-01T18:00:00","status":"PENDENTE"}'
@@ -176,7 +210,7 @@ curl -X POST http://localhost:8080/api/v1/tarefas \
 
 ### 10. Criar ativo
 ```bash
-curl -X POST http://localhost:8080/api/v1/ativos \
+curl -X POST $BASE_URL/api/v1/ativos \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"ticker":"PETR4.SA","tipo":"STOCK","moedaBase":"BRL"}'
@@ -184,7 +218,7 @@ curl -X POST http://localhost:8080/api/v1/ativos \
 
 ### 11. Criar transação de ativo
 ```bash
-curl -X POST http://localhost:8080/api/v1/transacoes-ativo \
+curl -X POST $BASE_URL/api/v1/transacoes-ativo \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"usuarioId":2,"ativoId":1,"tipo":"BUY","qtd":10.0,"preco":25.50,"dataNegocio":"2026-03-10"}'
@@ -193,7 +227,7 @@ curl -X POST http://localhost:8080/api/v1/transacoes-ativo \
 ### 12. Buscar cotação de moeda
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
-  "http://localhost:8080/api/v1/cotacoes-moeda/USD/2026-03-10"
+  "$BASE_URL/api/v1/cotacoes-moeda/USD/2026-03-10"
 ```
 
 ## Evolução do Projeto
@@ -241,7 +275,7 @@ Consulte `docs/roteiro-video.md`.
 - README com instalação, execução e acesso.
 - Diagramas em `docs/images`.
 - Roteiro em `docs/roteiro-video.md`.
-- Coleção Postman em `docs/postman/duckBill-postman.json`.
+- Coleções Postman em `docs/postman/duckBill-postman-local.json` e `docs/postman/duckBill-postman-ip-publico.json`.
 - Credenciais seed para perfis USER e ADMIN.
 
 ## Configuração centralizada
