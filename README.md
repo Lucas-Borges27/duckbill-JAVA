@@ -118,7 +118,7 @@ Dica:
 
 ## Acesso
 - Local: `http://localhost:8080/login`
-- Container com IP público: `http://<IP_PUBLICO_DO_CONTAINER>:8080/login`
+- Container com IP público: `http://137.131.144.164:8080/login`
 
 ### Credenciais seed
 - Admin: `admin@duckbill.com` / `admin123`
