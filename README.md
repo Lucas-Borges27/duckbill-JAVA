@@ -12,45 +12,106 @@ Aplicação Spring Boot para controle de despesas pessoais, metas de poupança, 
 
 ## Pré-requisitos
 - Java 17+
+- Docker Desktop ou Docker Engine
 - Preferencialmente usar `./mvnw`
 - Acesso ao Oracle FIAP em `oracle.fiap.com.br:1521/orcl`
 - Se necessário, rede/VPN com resolução do host `oracle.fiap.com.br`
 
 ## Como rodar
 
-### Execução
-1. Clone o repositório.
-2. Exporte as variáveis:
-   `DB_USER`
-   `DB_PASSWORD`
-3. Execute: `./mvnw spring-boot:run`
-4. O Flyway criará/versionará o schema e aplicará as migrations.
-5. A aplicação usa a URL fixa `jdbc:oracle:thin:@oracle.fiap.com.br:1521:orcl`.
+### 1. Clone do repositório
+```bash
+git clone https://github.com/Lucas-Borges27/duckbill-JAVA.git
+cd duckbill-JAVA
+```
 
-### Ambientes de teste (local e IP público)
-Você pode testar a aplicação de duas formas:
+### 2. Executar com Maven
+Essa opção sobe a aplicação diretamente na máquina local.
 
-1. Localmente (na própria máquina):
-   - Suba com `./mvnw spring-boot:run`
-   - Base URL: `http://localhost:8080`
+```bash
+./mvnw spring-boot:run
+```
 
-2. Remotamente, via IP público de um container com a imagem desta aplicação:
-   - Exemplo de publicação da imagem no host/container:
-     ```bash
-     docker run -d --name duckbill \
-       -p 8080:8080 \
-       -e DB_USER=seu_usuario \
-       -e DB_PASSWORD=sua_senha \
-       <sua-imagem-duckbill>:latest
-     ```
-   - Base URL: `http://<IP_PUBLICO_DO_CONTAINER>:8080`
-   - Exemplo: `http://34.123.45.67:8080/login`
+Após subir:
+- Web: `http://localhost:8080/login`
+- API: `http://localhost:8080/api/v1`
 
-Dica: nos testes de API e web, basta trocar `localhost` pelo IP público quando estiver validando no container remoto.
+Observação:
+- O Flyway cria/versiona o schema automaticamente na inicialização.
+- A configuração atual de banco está em `src/main/resources/application.properties`.
+
+### 3. Build da imagem Docker
+O projeto já possui um `Dockerfile` multi-stage que compila a aplicação com Maven e gera uma imagem final com Java 17.
+
+Comando de build:
+```bash
+docker build -t duckbill-api:latest .
+```
+
+### 4. Executar com Docker
+Depois do build, rode o container com:
+
+```bash
+docker run -d --name duckbill \
+  -p 8080:8080 \
+  duckbill-api:latest
+```
+
+Comandos úteis:
+```bash
+docker ps
+docker logs -f duckbill
+docker stop duckbill
+docker rm duckbill
+```
+
+Após subir o container:
+- Web: `http://localhost:8080/login`
+- API: `http://localhost:8080/api/v1`
+
+### 5. Subir para o Docker Hub
+Troque `SEU_USUARIO_DOCKERHUB` pelo seu usuário real no Docker Hub.
+
+1. Fazer login:
+```bash
+docker login
+```
+
+2. Criar a tag da imagem:
+```bash
+docker tag duckbill-api:latest SEU_USUARIO_DOCKERHUB/duckbill-api:latest
+```
+
+3. Enviar a imagem:
+```bash
+docker push SEU_USUARIO_DOCKERHUB/duckbill-api:latest
+```
+
+4. Conferir no Docker Hub se a imagem foi publicada.
+
+### 6. Rodar a imagem publicada no Docker Hub
+Em qualquer máquina com Docker:
+
+```bash
+docker pull SEU_USUARIO_DOCKERHUB/duckbill-api:latest
+
+docker run -d --name duckbill \
+  -p 8080:8080 \
+  SEU_USUARIO_DOCKERHUB/duckbill-api:latest
+```
+
+### 7. Uso em IP público
+Se a aplicação estiver rodando em uma VM, servidor ou container remoto com porta `8080` publicada:
+- Web: `http://<IP_PUBLICO>:8080/login`
+- API: `http://<IP_PUBLICO>:8080/api/v1`
+
+Dica:
+- Nos testes web e API, basta trocar `localhost` pelo IP público.
+- Para a gravação do vídeo, vale mostrar o `docker build`, o `docker run`, a aplicação abrindo no navegador e depois o CRUD no Postman.
 
 ### Testes
 - Execute: `./mvnw test`
-- Os testes usam a mesma configuração Oracle da aplicação e dependem de `DB_USER` e `DB_PASSWORD`.
+- Os testes usam a mesma configuração Oracle da aplicação.
 - Se o host Oracle não estiver acessível na rede da máquina, o teste de contexto irá falhar.
 - Para validar rapidamente os fluxos principais sem depender da suíte inteira, execute:
   `./mvnw -q -Dtest=DashboardServiceTest,MetaServiceTest,TarefaFinanceiraServiceTest test`
