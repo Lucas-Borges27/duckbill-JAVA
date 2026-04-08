@@ -146,7 +146,7 @@ Dica:
 ![Diagrama de Classes](docs/images/D_Classes.png)
 
 ## Vídeo
-- URL : [https://youtu.be/3hpxwZli2kY?si=s6yuTLSgUr45mRD_](https://youtu.be/3hpxwZli2kY?si=s6yuTLSgUr45mRD_)
+- URL : [https://youtu.be/I5ZEPi_Vo64](https://youtu.be/I5ZEPi_Vo64)
 
 ## Endpoints principais
 - Auth: POST `/api/v1/auth/login`, POST `/api/v1/auth/register`, GET `/api/v1/me`
