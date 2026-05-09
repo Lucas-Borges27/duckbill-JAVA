@@ -83,7 +83,8 @@ public class SecurityConfig {
     SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/acesso-negado", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/login", "/acesso-negado", "/css/**", "/js/**", "/images/**",
+                    "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/app/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()

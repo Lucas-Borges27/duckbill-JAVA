@@ -290,6 +290,92 @@ curl -H "Authorization: Bearer $TOKEN" \
   "$BASE_URL/api/v1/cotacoes-moeda/USD/2026-03-10"
 ```
 
+## Swagger / OpenAPI
+
+A documentação interativa da API está disponível em:
+
+- **Local:** `http://localhost:8080/swagger-ui.html`
+- **Container/deploy:** `http://<HOST>:8080/swagger-ui.html`
+
+Para testar endpoints protegidos, clique em **Authorize** no Swagger UI, informe o token JWT no campo `bearerAuth` (obtido em `POST /api/v1/auth/login`) e execute as requisições normalmente.
+
+---
+
+## Integração Multidisciplinar
+
+### Mastering Relational and Non-Relational DB
+O schema do banco Oracle é gerenciado por migrações Flyway (`V1` a `V5`), garantindo evolução controlada e rastreável:
+- `V1` — schema inicial (USUARIO, CATEGORIA, DESPESA, ATIVO, TRANSACAO_ATIVO, COTACAO_ATIVO, COTACAO_MOEDA)
+- `V2` — seed de dados (admin, usuário padrão, categorias)
+- `V3` — ajuste de sequences Oracle para colunas IDENTITY
+- `V4` — adição da coluna `SALDO` em USUARIO
+- `V5` — criação das tabelas META e TAREFA_FINANCEIRA
+
+### DevOps & Cloud Computing
+A aplicação é entregue via container Docker com imagem publicada no Docker Hub, possibilitando deploy em qualquer ambiente (VM, Azure, AWS). A pipeline CI/CD no Azure DevOps executa build, testes e deploy automaticamente a cada push na branch principal.
+
+### Mobile Application Development
+A API REST em JSON com autenticação JWT foi projetada para ser consumida pelo app mobile React Native. Todos os endpoints `/api/v1/**` retornam JSON padronizado, com suporte a CORS configurável via variável de ambiente `APP_CORS_ALLOWED_ORIGINS`.
+
+### Diagrama de Arquitetura
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Usuários Finais                       │
+└──────────┬─────────────────────────┬────────────────────┘
+           │                         │
+    ┌──────▼──────┐          ┌───────▼───────┐
+    │  Mobile App  │          │  Web Browser  │
+    │ React Native │          │  (Thymeleaf)  │
+    └──────┬──────┘          └───────┬───────┘
+           │  JWT Bearer             │  Form Login
+           └──────────┬──────────────┘
+                      │
+         ┌────────────▼────────────┐
+         │    API REST Spring Boot  │
+         │   (Docker / Azure VM)    │
+         │  /api/v1/**  port 8080   │
+         │  Swagger: /swagger-ui    │
+         └────────────┬────────────┘
+                      │  JDBC / JPA
+         ┌────────────▼────────────┐
+         │    Oracle Database       │
+         │  oracle.fiap.com.br      │
+         │  Flyway migrations V1-V5 │
+         └─────────────────────────┘
+```
+
+---
+
+## Sprint 4 — Java Advanced
+
+### Tarefas implementadas
+
+| # | Tarefa | Status |
+|---|--------|--------|
+| 1 | Dockerfile multi-stage funcional | ✅ |
+| 2 | docker-compose.yml com variáveis de ambiente | ✅ |
+| 3 | application.properties com `DATASOURCE_URL`, `DATASOURCE_USERNAME`, `DATASOURCE_PASSWORD`, `JWT_SECRET` | ✅ |
+| 4 | Swagger/OpenAPI com autenticação Bearer JWT (`/swagger-ui.html`) | ✅ |
+| 5 | `GlobalExceptionHandler` atualizado com `EntityNotFoundException` | ✅ |
+| 6 | Controllers anotados com `@Tag`, `@Operation`, `@ApiResponse` | ✅ |
+| 7 | README atualizado com Integração Multidisciplinar e diagrama de arquitetura | ✅ |
+
+---
+
+## Variáveis de Ambiente
+
+| Variável | Padrão | Descrição |
+|----------|--------|-----------|
+| `DATASOURCE_URL` | `jdbc:oracle:thin:@oracle.fiap.com.br:1521:orcl` | URL do banco Oracle |
+| `DATASOURCE_USERNAME` | `rm560027` | Usuário do banco |
+| `DATASOURCE_PASSWORD` | `270304` | Senha do banco |
+| `JWT_SECRET` | `duckbill-super-secret-key-...` | Chave de assinatura JWT |
+| `JWT_EXPIRATION_MS` | `86400000` | Expiração do token (ms) |
+| `APP_CORS_ALLOWED_ORIGINS` | `*` | Origens permitidas no CORS |
+
+---
+
 ## Evolução do Projeto
 
 ### Sprint 1 (Maturity Level 1 - Recursos)
@@ -317,6 +403,14 @@ curl -H "Authorization: Bearer $TOKEN" \
 - Fluxo D: Investimentos com formulário, histórico de transações e resumo consolidado da carteira.
 - Fluxo E: Admin bloqueia exclusão de categoria com despesas vinculadas.
 - Migrações Flyway V1 (schema), V2 (seed), V3 (ajuste de identities), V4 (saldo do usuário) e V5 (metas + tarefas).
+
+### Sprint 4 (Java Advanced — Deploy + Swagger + Qualidade)
+- Dockerfile multi-stage e docker-compose.yml para execução containerizada.
+- Variáveis de ambiente para todas as credenciais sensíveis (datasource, JWT).
+- Swagger/OpenAPI com autenticação Bearer JWT acessível em `/swagger-ui.html`.
+- `GlobalExceptionHandler` expandido com `EntityNotFoundException`.
+- Controllers anotados com `@Tag`, `@Operation`, `@ApiResponse` para documentação automática.
+- README atualizado com diagrama de arquitetura e seção de Integração Multidisciplinar.
 
 ## Roteiro do vídeo
 Consulte `docs/roteiro-video.md`.

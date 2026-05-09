@@ -2,6 +2,7 @@ package com.db.duckbill.web.controller.api;
 
 import com.db.duckbill.web.exception.CategoriaEmUsoException;
 import com.db.duckbill.web.exception.AcessoNegadoException;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
@@ -66,6 +67,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleBusiness(RuntimeException ex) {
         HttpStatus status = ex instanceof NoSuchElementException ? HttpStatus.NOT_FOUND : HttpStatus.BAD_REQUEST;
         return build(status, ex.getMessage());
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleEntityNotFound(EntityNotFoundException ex) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage() != null ? ex.getMessage() : "Recurso não encontrado.");
     }
 
     @ExceptionHandler(AcessoNegadoException.class)

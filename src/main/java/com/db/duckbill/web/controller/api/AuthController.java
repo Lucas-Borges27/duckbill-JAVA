@@ -6,6 +6,11 @@ import com.db.duckbill.web.dto.AuthLoginRequest;
 import com.db.duckbill.web.dto.AuthRegisterRequest;
 import com.db.duckbill.web.dto.AuthResponseDTO;
 import com.db.duckbill.web.dto.UsuarioDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Autenticação", description = "Login e cadastro de usuários")
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -25,6 +31,12 @@ public class AuthController {
     private final JwtService jwtService;
     private final UsuarioService usuarioService;
 
+    @Operation(summary = "Realizar login", description = "Autentica usuário e retorna token JWT")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Login realizado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Email ou senha inválidos")
+    })
+    @SecurityRequirements
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody AuthLoginRequest request) {
         String email = request.email().trim().toLowerCase();
@@ -49,6 +61,12 @@ public class AuthController {
         ));
     }
 
+    @Operation(summary = "Cadastrar usuário", description = "Registra novo usuário e retorna token JWT")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos ou email já cadastrado")
+    })
+    @SecurityRequirements
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody AuthRegisterRequest request) {
         var usuario = usuarioService.registrar(request);
