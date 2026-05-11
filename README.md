@@ -10,115 +10,15 @@ Aplicação Spring Boot para controle de despesas pessoais, metas de poupança, 
 ## Repositório
 - GitHub: `https://github.com/Lucas-Borges27/duckbill-JAVA`
 
-## Pré-requisitos
-- Java 17+
-- Docker Desktop ou Docker Engine
-- Preferencialmente usar `./mvnw`
-- Acesso ao Oracle FIAP em `oracle.fiap.com.br:1521/orcl`
-- Se necessário, rede/VPN com resolução do host `oracle.fiap.com.br`
+## Aplicação em produção (Azure)
 
-## Como rodar
+A aplicação está hospedada no **Azure App Service** e não requer instalação local para uso ou avaliação:
 
-### 1. Clone do repositório
-```bash
-git clone https://github.com/Lucas-Borges27/duckbill-JAVA.git
-cd duckbill-JAVA
-```
-
-### 2. Executar com Maven
-Essa opção sobe a aplicação diretamente na máquina local.
-
-```bash
-./mvnw spring-boot:run
-```
-
-Após subir:
-- Web: `http://localhost:8080/login`
-- API: `http://localhost:8080/api/v1`
-
-Observação:
-- O Flyway cria/versiona o schema automaticamente na inicialização.
-- A configuração atual de banco está em `src/main/resources/application.properties`.
-
-### 3. Build da imagem Docker
-O projeto já possui um `Dockerfile` multi-stage que compila a aplicação com Maven e gera uma imagem final com Java 17.
-
-Comando de build:
-```bash
-docker build -t duckbill-api:latest .
-```
-
-### 4. Executar com Docker
-Depois do build, rode o container com:
-
-```bash
-docker run -d --name duckbill \
-  -p 8080:8080 \
-  duckbill-api:latest
-```
-
-Comandos úteis:
-```bash
-docker ps
-docker logs -f duckbill
-docker stop duckbill
-docker rm duckbill
-```
-
-Após subir o container:
-- Web: `http://localhost:8080/login`
-- API: `http://localhost:8080/api/v1`
-
-### 5. Subir para o Docker Hub
-Troque `SEU_USUARIO_DOCKERHUB` pelo seu usuário real no Docker Hub.
-
-1. Fazer login:
-```bash
-docker login
-```
-
-2. Criar a tag da imagem:
-```bash
-docker tag duckbill-api:latest SEU_USUARIO_DOCKERHUB/duckbill-api:latest
-```
-
-3. Enviar a imagem:
-```bash
-docker push SEU_USUARIO_DOCKERHUB/duckbill-api:latest
-```
-
-4. Conferir no Docker Hub se a imagem foi publicada.
-
-### 6. Rodar a imagem publicada no Docker Hub
-Em qualquer máquina com Docker:
-
-```bash
-docker pull SEU_USUARIO_DOCKERHUB/duckbill-api:latest
-
-docker run -d --name duckbill \
-  -p 8080:8080 \
-  SEU_USUARIO_DOCKERHUB/duckbill-api:latest
-```
-
-### 7. Uso em IP público
-Se a aplicação estiver rodando em uma VM, servidor ou container remoto com porta `8080` publicada:
-- Web: `http://<IP_PUBLICO>:8080/login`
-- API: `http://<IP_PUBLICO>:8080/api/v1`
-
-Dica:
-- Nos testes web e API, basta trocar `localhost` pelo IP público.
-- Para a gravação do vídeo, vale mostrar o `docker build`, o `docker run`, a aplicação abrindo no navegador e depois o CRUD no Postman.
-
-### Testes
-- Execute: `./mvnw test`
-- Os testes usam a mesma configuração Oracle da aplicação.
-- Se o host Oracle não estiver acessível na rede da máquina, o teste de contexto irá falhar.
-- Para validar rapidamente os fluxos principais sem depender da suíte inteira, execute:
-  `./mvnw -q -Dtest=DashboardServiceTest,MetaServiceTest,TarefaFinanceiraServiceTest test`
-
-## Acesso
-- Local: `http://localhost:8080/login`
-- Container com IP público: `http://137.131.144.164:8080/login`
+| Recurso | URL |
+|---------|-----|
+| Web (login) | `https://duckbill-app-deeedygsabewafba.brazilsouth-01.azurewebsites.net/login` |
+| API REST | `https://duckbill-app-deeedygsabewafba.brazilsouth-01.azurewebsites.net/api/v1` |
+| Swagger UI | `https://duckbill-app-deeedygsabewafba.brazilsouth-01.azurewebsites.net/swagger-ui.html` |
 
 ### Credenciais seed
 - Admin: `admin@duckbill.com` / `admin123`
@@ -138,45 +38,87 @@ Dica:
 - API JWT: login, leitura de `/api/v1/me`, metas, tarefas/notificações e despesas.
 - ADMIN: tentativa de exclusão de categoria em uso e bloqueio funcional.
 
-## Diagramas
-### DER
-![Diagrama ER](docs/images/DER.png)
+---
 
-### Diagrama de Classes
-![Diagrama de Classes](docs/images/D_Classes.png)
+## Como rodar localmente (opcional)
 
-## Vídeo
-- URL : [https://youtu.be/I5ZEPi_Vo64](https://youtu.be/I5ZEPi_Vo64)
+> A forma recomendada para avaliação é usar a URL do Azure acima. As instruções abaixo são para execução local.
 
-## Endpoints principais
-- Auth: POST `/api/v1/auth/login`, POST `/api/v1/auth/register`, GET `/api/v1/me`
-- Usuários admin: POST/GET `/api/v1/usuarios`, GET `/api/v1/usuarios/{id}`
-- Categorias: POST/GET /api/v1/categorias
-- Despesas: POST/GET `/api/v1/despesas`, GET/PUT/DELETE `/api/v1/despesas/{id}`, GET `/api/v1/despesas/top3`, GET `/api/v1/despesas/insights`
-- Metas: POST/GET `/api/v1/metas`, GET/PUT/DELETE `/api/v1/metas/{id}`, POST `/api/v1/metas/{id}/aportes`
-- Tarefas: POST/GET `/api/v1/tarefas`, GET/PUT/DELETE `/api/v1/tarefas/{id}`, GET `/api/v1/tarefas/notificacoes`, POST `/api/v1/tarefas/{id}/concluir`
-- Ativos: POST/GET /api/v1/ativos, GET /api/v1/ativos/{id}, PUT /api/v1/ativos/{id}
-- Transações Ativo: POST/GET `/api/v1/transacoes-ativo`, GET `/api/v1/transacoes-ativo/{id}`, PUT `/api/v1/transacoes-ativo/{id}`, DELETE `/api/v1/transacoes-ativo/{id}`, GET `/api/v1/transacoes-ativo/resumo`
-- Cotações de Ativo: POST/GET /api/v1/cotacoes-ativo, GET /api/v1/cotacoes-ativo/{ativoId}/{dataRef}
-- Cotações de Moeda: GET /api/v1/cotacoes-moeda, GET /api/v1/cotacoes-moeda/{moeda}/{dataRef}
-- Câmbio (serviço utilitário): GET /api/v1/cambio
+### Pré-requisitos
+- Java 17+
+- Docker Desktop ou Docker Engine
+- Preferencialmente usar `./mvnw`
+- Acesso ao Oracle FIAP em `oracle.fiap.com.br:1521/orcl`
+- Se necessário, rede/VPN com resolução do host `oracle.fiap.com.br`
+
+### 1. Clone do repositório
+```bash
+git clone https://github.com/Lucas-Borges27/duckbill-JAVA.git
+cd duckbill-JAVA
+```
+
+### 2. Executar com Maven
+```bash
+./mvnw spring-boot:run
+```
+
+Após subir:
+- Web: `http://localhost:8080/login`
+- API: `http://localhost:8080/api/v1`
+
+Observação:
+- O Flyway cria/versiona o schema automaticamente na inicialização.
+- A configuração atual de banco está em `src/main/resources/application.properties`.
+
+### 3. Build da imagem Docker
+```bash
+docker build -t duckbill-api:latest .
+```
+
+### 4. Executar com Docker
+```bash
+docker run -d --name duckbill \
+  -p 8080:8080 \
+  duckbill-api:latest
+```
+
+Comandos úteis:
+```bash
+docker ps
+docker logs -f duckbill
+docker stop duckbill
+docker rm duckbill
+```
+
+### Testes
+- Execute: `./mvnw test`
+- Os testes usam a mesma configuração Oracle da aplicação.
+- Para validar rapidamente os fluxos principais:
+  `./mvnw -q -Dtest=DashboardServiceTest,MetaServiceTest,TarefaFinanceiraServiceTest test`
+
+---
 
 ## Postman
-Para testar os endpoints da API, importe uma das coleções abaixo:
-- Local: `docs/postman/duckBill-postman-local.json`
-- IP público (`137.131.144.164`): `docs/postman/duckBill-postman-ip-publico.json`
 
-Observação: o arquivo `docs/postman/duckBill-postman.json` continua como coleção base original.
+Importe a coleção abaixo para testar os endpoints via Postman:
+
+- **Azure (produção):** `docs/postman/duckBill-postman-azure.json` — aponta para `https://duckbill-app-deeedygsabewafba.brazilsouth-01.azurewebsites.net`
+- **Local:** `docs/postman/duckBill-postman-local.json` — aponta para `http://localhost:8080`
+
+A variável `baseUrl` já está configurada em cada coleção. Basta importar e executar.
+
+---
 
 ## Autenticação da API
+
 As rotas `/api/**` usam JWT Bearer Token. O frontend web em Thymeleaf continua com login por formulário e sessão, mas o app mobile consome apenas a API JWT.
 
 Defina a base antes dos testes:
 
 ```bash
-export BASE_URL=http://localhost:8080
-ou:
-export BASE_URL=http://137.131.144.164:8080
+export BASE_URL=https://duckbill-app-deeedygsabewafba.brazilsouth-01.azurewebsites.net
+# ou, para rodar local:
+# export BASE_URL=http://localhost:8080
 ```
 
 ```bash
@@ -187,7 +129,7 @@ curl -X POST $BASE_URL/api/v1/auth/login \
 
 Resposta esperada:
 
-```bash
+```json
 {
   "token": "eyJ...",
   "tokenType": "Bearer",
@@ -199,9 +141,28 @@ Resposta esperada:
     "role": "ROLE_USER",
     "saldo": 2500.00
   }
+}
 ```
 
+---
+
+## Endpoints principais
+- Auth: POST `/api/v1/auth/login`, POST `/api/v1/auth/register`, GET `/api/v1/me`
+- Usuários admin: POST/GET `/api/v1/usuarios`, GET `/api/v1/usuarios/{id}`
+- Categorias: POST/GET `/api/v1/categorias`
+- Despesas: POST/GET `/api/v1/despesas`, GET/PUT/DELETE `/api/v1/despesas/{id}`, GET `/api/v1/despesas/top3`, GET `/api/v1/despesas/insights`
+- Metas: POST/GET `/api/v1/metas`, GET/PUT/DELETE `/api/v1/metas/{id}`, POST `/api/v1/metas/{id}/aportes`
+- Tarefas: POST/GET `/api/v1/tarefas`, GET/PUT/DELETE `/api/v1/tarefas/{id}`, GET `/api/v1/tarefas/notificacoes`, POST `/api/v1/tarefas/{id}/concluir`
+- Ativos: POST/GET `/api/v1/ativos`, GET `/api/v1/ativos/{id}`, PUT `/api/v1/ativos/{id}`
+- Transações Ativo: POST/GET `/api/v1/transacoes-ativo`, GET/PUT/DELETE `/api/v1/transacoes-ativo/{id}`, GET `/api/v1/transacoes-ativo/resumo`
+- Cotações de Ativo: POST/GET `/api/v1/cotacoes-ativo`, GET `/api/v1/cotacoes-ativo/{ativoId}/{dataRef}`
+- Cotações de Moeda: GET `/api/v1/cotacoes-moeda`, GET `/api/v1/cotacoes-moeda/{moeda}/{dataRef}`
+- Câmbio (serviço utilitário): GET `/api/v1/cambio`
+
+---
+
 ## Exemplos de uso
+
 Os exemplos abaixo assumem um token JWT válido em `TOKEN` e `BASE_URL` configurado. Para rotas administrativas, faça login com `admin@duckbill.com`.
 
 ### 1. Criar usuário
@@ -290,14 +251,30 @@ curl -H "Authorization: Bearer $TOKEN" \
   "$BASE_URL/api/v1/cotacoes-moeda/USD/2026-03-10"
 ```
 
+---
+
 ## Swagger / OpenAPI
 
 A documentação interativa da API está disponível em:
 
+- **Azure (produção):** `https://duckbill-app-deeedygsabewafba.brazilsouth-01.azurewebsites.net/swagger-ui.html`
 - **Local:** `http://localhost:8080/swagger-ui.html`
-- **Container/deploy:** `http://<HOST>:8080/swagger-ui.html`
 
 Para testar endpoints protegidos, clique em **Authorize** no Swagger UI, informe o token JWT no campo `bearerAuth` (obtido em `POST /api/v1/auth/login`) e execute as requisições normalmente.
+
+---
+
+## Diagramas
+### DER
+![Diagrama ER](docs/images/DER.png)
+
+### Diagrama de Classes
+![Diagrama de Classes](docs/images/D_Classes.png)
+
+---
+
+## Vídeo
+- URL : [https://youtu.be/I5ZEPi_Vo64](https://youtu.be/I5ZEPi_Vo64)
 
 ---
 
@@ -312,7 +289,7 @@ O schema do banco Oracle é gerenciado por migrações Flyway (`V1` a `V5`), gar
 - `V5` — criação das tabelas META e TAREFA_FINANCEIRA
 
 ### DevOps & Cloud Computing
-A aplicação é entregue via container Docker com imagem publicada no Docker Hub, possibilitando deploy em qualquer ambiente (VM, Azure, AWS). A pipeline CI/CD no Azure DevOps executa build, testes e deploy automaticamente a cada push na branch principal.
+A aplicação é entregue via container Docker com imagem publicada no Docker Hub e hospedada no **Azure App Service** (`brazilsouth`). O deploy é realizado a partir da imagem Docker, permitindo execução consistente em qualquer ambiente. A pipeline CI/CD no Azure DevOps executa build, testes e deploy automaticamente a cada push na branch principal.
 
 ### Mobile Application Development
 A API REST em JSON com autenticação JWT foi projetada para ser consumida pelo app mobile React Native. Todos os endpoints `/api/v1/**` retornam JSON padronizado, com suporte a CORS configurável via variável de ambiente `APP_CORS_ALLOWED_ORIGINS`.
@@ -321,7 +298,7 @@ A API REST em JSON com autenticação JWT foi projetada para ser consumida pelo 
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Usuários Finais                       │
+│                    Usuários Finais                        │
 └──────────┬─────────────────────────┬────────────────────┘
            │                         │
     ┌──────▼──────┐          ┌───────▼───────┐
@@ -331,12 +308,13 @@ A API REST em JSON com autenticação JWT foi projetada para ser consumida pelo 
            │  JWT Bearer             │  Form Login
            └──────────┬──────────────┘
                       │
-         ┌────────────▼────────────┐
-         │    API REST Spring Boot  │
-         │   (Docker / Azure VM)    │
-         │  /api/v1/**  port 8080   │
-         │  Swagger: /swagger-ui    │
-         └────────────┬────────────┘
+         ┌────────────▼────────────────────────┐
+         │     Azure App Service (BrazilSouth)  │
+         │  duckbill-app-deeedygsabewafba       │
+         │  .brazilsouth-01.azurewebsites.net   │
+         │  API REST Spring Boot /api/v1/**     │
+         │  Swagger: /swagger-ui.html           │
+         └────────────┬────────────────────────┘
                       │  JDBC / JPA
          ┌────────────▼────────────┐
          │    Oracle Database       │
@@ -359,7 +337,8 @@ A API REST em JSON com autenticação JWT foi projetada para ser consumida pelo 
 | 4 | Swagger/OpenAPI com autenticação Bearer JWT (`/swagger-ui.html`) | ✅ |
 | 5 | `GlobalExceptionHandler` atualizado com `EntityNotFoundException` | ✅ |
 | 6 | Controllers anotados com `@Tag`, `@Operation`, `@ApiResponse` | ✅ |
-| 7 | README atualizado com Integração Multidisciplinar e diagrama de arquitetura | ✅ |
+| 7 | Deploy no Azure App Service (BrazilSouth) | ✅ |
+| 8 | README atualizado com Integração Multidisciplinar e diagrama de arquitetura | ✅ |
 
 ---
 
@@ -410,14 +389,17 @@ A API REST em JSON com autenticação JWT foi projetada para ser consumida pelo 
 - Swagger/OpenAPI com autenticação Bearer JWT acessível em `/swagger-ui.html`.
 - `GlobalExceptionHandler` expandido com `EntityNotFoundException`.
 - Controllers anotados com `@Tag`, `@Operation`, `@ApiResponse` para documentação automática.
+- Deploy no Azure App Service (BrazilSouth) — aplicação disponível sem instalação local.
 - README atualizado com diagrama de arquitetura e seção de Integração Multidisciplinar.
+
+---
 
 ## Roteiro do vídeo
 Consulte `docs/roteiro-video.md`.
 
 ## Checklist rápido de demonstração
 - Flyway aplicado com migrations `V1` a `V5`
-- Login web funcionando em `/login`
+- Login web funcionando em `/login` (Azure ou local)
 - USER sem acesso a `/admin/**`
 - ADMIN com acesso a `/admin/categorias`
 - Dashboard exibindo total, top 3 e insights
@@ -429,7 +411,7 @@ Consulte `docs/roteiro-video.md`.
 - README com instalação, execução e acesso.
 - Diagramas em `docs/images`.
 - Roteiro em `docs/roteiro-video.md`.
-- Coleções Postman em `docs/postman/duckBill-postman-local.json` e `docs/postman/duckBill-postman-ip-publico.json`.
+- Coleção Postman Azure em `docs/postman/duckBill-postman-azure.json`.
 - Credenciais seed para perfis USER e ADMIN.
 
 ## Configuração centralizada
